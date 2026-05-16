@@ -69,12 +69,12 @@ User fills form  ──▶  Fields are SHA256-hashed in browser  ──▶  Only
 
 **Concretely:**
 - A user submits their name, DOB, nationality, address, and ID number
-- Each field is individually hashed with SHA256 **in the browser** — the raw values are never sent anywhere
+- Each field is individually hashed with SHA256 **in the browser** the raw values are never sent anywhere
 - The hashes (commitments) are stored on the Midnight ledger
 - A verifier oracle checks the actual documents and approves or rejects via a ZK circuit
 - Your application can then query: *"Is this identity verified?"* and get a boolean
 - You never learn the user's name, address, or any personal field
-- The user can later **delete all their data** with a single click — privacy-preserving erasure
+- The user can later **delete all their data** with a single click privacy-preserving erasure
 
 ### The Problem It's Solving
 
@@ -88,10 +88,10 @@ Every identity verification system today has a fundamental flaw: **you must hold
 | ShadowKey | SHA256 hashes + boolean status | **Nothing reversible. Nothing to leak.** |
 
 **The core insight:** If your business can answer *"is this person verified?"* with a boolean instead of their full identity profile, you eliminate:
-1. **Breach liability** — no PII database to leak
-2. **Compliance overhead** — no SOC2/ISO 27001 scope for identity storage
-3. **Data residency issues** — hashes are not PII under GDPR
-4. **User distrust** — nobody likes uploading their passport to a random website
+1. **Breach liability** no PII database to leak
+2. **Compliance overhead** no SOC2/ISO 27001 scope for identity storage
+3. **Data residency issues** hashes are not PII under GDPR
+4. **User distrust** nobody likes uploading their passport to a random website
 
 > **"The best way to protect user data is to never have it in the first place."**
 
@@ -99,16 +99,16 @@ Every identity verification system today has a fundamental flaw: **you must hold
 
 | Business Pain Point | ShadowKey Solution |
 |---------------------|-------------------|
-| **Compliance costs** — SOC2 audits cost $50k–$200k/year | No PII stored → out of scope for identity-related controls |
-| **Breach notification laws** — 72-hour reporting in GDPR | No PII to report. Hash commitments are not personal data. |
-| **User drop-off** — 30–60% of users abandon KYC flows | One-click identity proofing with ZK — no repeated uploads |
-| **Cross-border complexity** — different laws per country | Same architecture works everywhere. Data never leaves the browser. |
-| **Vendor lock-in** — expensive per-verification pricing | Self-sovereign identity on a public blockchain. Zero marginal cost. |
-| **User deletion requests** — GDPR "right to erasure" | Built-in `deleteIdentity` circuit. One transaction. Done. |
+| **Compliance costs** SOC2 audits cost $50k–$200k/year | No PII stored → out of scope for identity-related controls |
+| **Breach notification laws** 72-hour reporting in GDPR | No PII to report. Hash commitments are not personal data. |
+| **User drop-off** 30–60% of users abandon KYC flows | One-click identity proofing with ZK no repeated uploads |
+| **Cross-border complexity** different laws per country | Same architecture works everywhere. Data never leaves the browser. |
+| **Vendor lock-in** expensive per-verification pricing | Self-sovereign identity on a public blockchain. Zero marginal cost. |
+| **User deletion requests** GDPR "right to erasure" | Built-in `deleteIdentity` circuit. One transaction. Done. |
 
 ### The Business Model
 
-ShadowKey is designed as **infrastructure** — other dApps and DeFi protocols integrate it as their identity layer:
+ShadowKey is designed as **infrastructure** other dApps and DeFi protocols integrate it as their identity layer:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -119,7 +119,7 @@ ShadowKey is designed as **infrastructure** — other dApps and DeFi protocols i
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │                    ShadowKey Contract                     │
-│  Returns: true/false — No user data leaked               │
+│  Returns: true/false No user data leaked               │
 └────────────────────────┬────────────────────────────────┘
                          │
                          ▼
@@ -131,10 +131,10 @@ ShadowKey is designed as **infrastructure** — other dApps and DeFi protocols i
 ```
 
 **Revenue models:**
-- **Protocol fee** — tiny per-verification fee (fractions of a cent on Midnight)
-- **SaaS tier** — for non-crypto businesses, a monthly subscription for the verification oracle
-- **White-label** — deploy your own instance with custom KYC rules
-- **Data marketplace** (future) — users optionally disclose specific fields to specific dApps for a fee
+- **Protocol fee** tiny per-verification fee (fractions of a cent on Midnight)
+- **SaaS tier** for non-crypto businesses, a monthly subscription for the verification oracle
+- **White-label** deploy your own instance with custom KYC rules
+- **Data marketplace** (future) users optionally disclose specific fields to specific dApps for a fee
 
 ---
 
@@ -168,7 +168,7 @@ Identity databases are the **highest-value targets** for hackers:
 | Facebook (2019) | 540M user profiles | $5B fine |
 | ShadowKey | **Nothing to leak** | **$0** |
 
-**ShadowKey's architecture makes breach impossible by design** — there is no database of PII to steal.
+**ShadowKey's architecture makes breach impossible by design** there is no database of PII to steal.
 
 #### 3. The Usability Crisis
 
@@ -187,7 +187,7 @@ graph LR
     D -.-> Z[15% drop off]
 ```
 
-Industry data: **60-80% of users never complete KYC**. ShadowKey reduces this to a single ZK proof — no waiting, no re-uploads, no failed selfies.
+Industry data: **60-80% of users never complete KYC**. ShadowKey reduces this to a single ZK proof no waiting, no re-uploads, no failed selfies.
 
 ---
 
@@ -324,7 +324,7 @@ Compact is Midnight's ZK smart contract language. Unlike Solidity (where all com
 
 ### The 9 Circuits
 
-#### Helper Circuits (internal — not directly callable)
+#### Helper Circuits (internal not directly callable)
 
 **`hashField(input: Bytes<32>) → Bytes<32>`**
 ```compact
@@ -349,27 +349,27 @@ circuit deriveIdentityId(secret: Bytes<32>): Bytes<32> {
   ]);
 }
 ```
-Derives a public identity from the witness secret. This is the user's on-chain handle — deterministic, unique, and privacy-preserving.
+Derives a public identity from the witness secret. This is the user's on-chain handle deterministic, unique, and privacy-preserving.
 
 #### Exported Circuits
 
-**`submitIdentity`** — The entry point. Takes 5 raw field values, hashes each, derives the identity ID from the witness secret, stores all commitments, and sets status to 1 (pending review). Guards against deleted identities. Increments `totalRegistered`.
+**`submitIdentity`** The entry point. Takes 5 raw field values, hashes each, derives the identity ID from the witness secret, stores all commitments, and sets status to 1 (pending review). Guards against deleted identities. Increments `totalRegistered`.
 
-**`uploadDocument`** — Takes a document raw bytes and type. Hashes the document, creates a doc ID from `H(identityId || docHash)`, stores the commitment. Linked to the identity via derived identity from witness.
+**`uploadDocument`** Takes a document raw bytes and type. Hashes the document, creates a doc ID from `H(identityId || docHash)`, stores the commitment. Linked to the identity via derived identity from witness.
 
-**`approveIdentity`** — Called by the verifier oracle. Sets identity status to 2 (verified) and adds to `verifiedIdentities`. Increments `totalVerified`. Only succeeds if identity is not deleted.
+**`approveIdentity`** Called by the verifier oracle. Sets identity status to 2 (verified) and adds to `verifiedIdentities`. Increments `totalVerified`. Only succeeds if identity is not deleted.
 
-**`rejectIdentity`** — Sets identity status to 3 (rejected). No verification needed — any verifier can reject.
+**`rejectIdentity`** Sets identity status to 3 (rejected). No verification needed any verifier can reject.
 
-**`deleteIdentity`** — The privacy erasure circuit. Requires the identity to be verified first (prevents spam deletion). Removes all entries across 5 ledger maps: `identityCommits`, `identityStatuses`, `verifiedIdentities`, `verificationRecords`, and the linked document commits. Inserts a tombstone. After this, the identity cannot be re-registered.
+**`deleteIdentity`** The privacy erasure circuit. Requires the identity to be verified first (prevents spam deletion). Removes all entries across 5 ledger maps: `identityCommits`, `identityStatuses`, `verifiedIdentities`, `verificationRecords`, and the linked document commits. Inserts a tombstone. After this, the identity cannot be re-registered.
 
-**`proveIdentityExists`** — A public query: returns `verifiedIdentities.lookup(id)`. Third-party dApps call this to check verification status.
+**`proveIdentityExists`** A public query: returns `verifiedIdentities.lookup(id)`. Third-party dApps call this to check verification status.
 
-**`proveField`** — Zero-knowledge field revelation. Allows a user to prove that a specific field value matches their committed hash, without revealing other fields. Uses `verifyFieldMatch` helper to check the hash against the commitment struct.
+**`proveField`** Zero-knowledge field revelation. Allows a user to prove that a specific field value matches their committed hash, without revealing other fields. Uses `verifyFieldMatch` helper to check the hash against the commitment struct.
 
-**`login`** — The authentication circuit. Proves the user is verified and not deleted. Mints a deterministic session nonce using domain `"shadowkey:session:v1"`. Stores it in `activeSessions`. Returns the nonce as a public value.
+**`login`** The authentication circuit. Proves the user is verified and not deleted. Mints a deterministic session nonce using domain `"shadowkey:session:v1"`. Stores it in `activeSessions`. Returns the nonce as a public value.
 
-**`verifySession`** — The public verification query. Any third party can check if a session nonce is valid by looking up `activeSessions`. Returns a boolean. No identity data is revealed.
+**`verifySession`** The public verification query. Any third party can check if a session nonce is valid by looking up `activeSessions`. Returns a boolean. No identity data is revealed.
 
 ### Ledger State
 
@@ -380,7 +380,7 @@ Derives a public identity from the witness secret. This is the user's on-chain h
 | `documentCommits` | `Map<Bytes<32>, DocumentRecord>` | Created on `uploadDocument`, batch-deleted on `deleteIdentity` |
 | `verifiedIdentities` | `Map<Bytes<32>, Boolean>` | Created on `approveIdentity`, deleted on `deleteIdentity` |
 | `verificationRecords` | `Map<Bytes<32>, VerificationRecord>` | Created on approve, deleted on delete |
-| `deletedIdentities` | `Map<Bytes<32>, Boolean>` | Created on `deleteIdentity` — permanent tombstone |
+| `deletedIdentities` | `Map<Bytes<32>, Boolean>` | Created on `deleteIdentity` permanent tombstone |
 | `activeSessions` | `Map<Bytes<32>, Boolean>` | Created on `login`, never deleted (expiry TBD) |
 | `totalRegistered` | `Counter` | Incremented on `submitIdentity` |
 | `totalVerified` | `Counter` | Incremented on `approveIdentity` |
@@ -414,7 +414,7 @@ identityCommits.insert(disclosedId, IdentityCommit {
 return disclose(nonce);
 ```
 
-This is a **compile-time safety check** — if you forget `disclose()`, the compiler errors out. No accidental data leaks.
+This is a **compile-time safety check** if you forget `disclose()`, the compiler errors out. No accidental data leaks.
 
 ---
 
@@ -487,7 +487,7 @@ HR never:  Stores passport copies or ID numbers
 User:     "I'm already verified on Midnight"
 Service:  "Prove it"
 User:     Generates ZK proof of existing verification
-Service:  "Accepted" — no re-KYC needed
+Service:  "Accepted" no re-KYC needed
 ```
 
 ---
@@ -527,19 +527,19 @@ Service:  "Accepted" — no re-KYC needed
 The landing page presents:
 - **Tagline:** "Authentication Without Exposure"
 - **Three feature cards:**
-  1. **Fill Identity Form** — 5 identity fields → SHA256 hashed → committed to ledger
-  2. **Upload Documents** — Drag & drop docs → document commitments stored on-chain
-  3. **Auto-Verify & Login** — ZK proofs verified → session token minted
-- **CTA:** "Start Identity Verification" button (no wallet required — runs in demo mode)
+  1. **Fill Identity Form** 5 identity fields → SHA256 hashed → committed to ledger
+  2. **Upload Documents** Drag & drop docs → document commitments stored on-chain
+  3. **Auto-Verify & Login** ZK proofs verified → session token minted
+- **CTA:** "Start Identity Verification" button (no wallet required runs in demo mode)
 
 ### 📝 Step 2: Identity Form
 
 A 5-field animated form with:
-- **Full Name** — validated for minimum length
-- **Date of Birth** — date picker
-- **Nationality** — free text, validated
-- **Residential Address** — validated for completeness
-- **ID Number** — validated
+- **Full Name** validated for minimum length
+- **Date of Birth** date picker
+- **Nationality** free text, validated
+- **Residential Address** validated for completeness
+- **ID Number** validated
 
 Each field shows a green dot when filled. The terminal log on the right shows simulated SHA256 hashing:
 ```
@@ -562,11 +562,11 @@ The "Verify Identity" button enables when at least one document is uploaded.
 ### ⚡ Step 4: ZK Proof Pipeline
 
 An animated verification screen showing 5 stages with progress bars:
-1. **Document hash verification** — SHA256 commitment check
-2. **Identity field matching** — 5 field hash comparisons
-3. **Circuit: approveIdentity (k=13)** — 7168 rows, 234 constraints
-4. **Groth16 proof generation** — Multi-scalar multiplication
-5. **On-chain submission** — `ledger.insert(identityStatus)`
+1. **Document hash verification** SHA256 commitment check
+2. **Identity field matching** 5 field hash comparisons
+3. **Circuit: approveIdentity (k=13)** 7168 rows, 234 constraints
+4. **Groth16 proof generation** Multi-scalar multiplication
+5. **On-chain submission** `ledger.insert(identityStatus)`
 
 Each stage animates in sequentially with pulsing indicators and colored progress bars.
 
@@ -597,14 +597,14 @@ The post-verification control center:
 ### 📟 Operations Log
 
 Throughout the entire flow, the right panel shows a live terminal log with:
-- **Timestamps** — `[HH:MM:SS]`
+- **Timestamps** `[HH:MM:SS]`
 - **Color-coded levels:**
-  - 🔵 `info` — flow progress
-  - 🟢 `success` — operation completed
-  - 🟡 `warn` — warning
-  - 🔴 `error` — failure
-  - 🟣 `data` — cryptographic values
-  - 🔷 `zk` — ZK circuit operations
+  - 🔵 `info` flow progress
+  - 🟢 `success` operation completed
+  - 🟡 `warn` warning
+  - 🔴 `error` failure
+  - 🟣 `data` cryptographic values
+  - 🔷 `zk` ZK circuit operations
 
 ---
 
@@ -647,19 +647,19 @@ Throughout the entire flow, the right panel shows a live terminal log with:
 │  │                                                                             │  │
 │  │  ┌──────────────────────────────────────────────────────────────────────┐  │  │
 │  │  │                     Terminal Operations Log                          │  │  │
-│  │  │  [12:34:56] ZK │ info | success | data | zk — color-coded messages  │  │  │
+│  │  │  [12:34:56] ZK │ info | success | data | zk color-coded messages  │  │  │
 │  │  └──────────────────────────────────────────────────────────────────────┘  │  │
 │  │                                                                             │  │
 │  │  ┌──────────────────────────────────────────────────────────────────────┐  │  │
 │  │  │                     hooks/                                           │  │  │
 │  │  │  ┌─────────────────────┐  ┌──────────────────────────────────────┐  │  │  │
 │  │  │  │ useWallet.ts        │  │ useContract.ts                       │  │  │  │
-│  │  │  │ - Detect Lace       │  │ - submitIdentity() — sim hash + store│  │  │  │
-│  │  │  │ - connect('preview')│  │ - uploadDocument() — sim doc commit  │  │  │  │
-│  │  │  │ - balances          │  │ - requestVerification() — sim approve│  │  │  │
-│  │  │  │ - error handling    │  │ - login() — sim session nonce        │  │  │  │
-│  │  │  └─────────────────────┘  │ - verifySession() — sim Groth16      │  │  │  │
-│  │  │                           │ - deleteIdentity() — sim erasure     │  │  │  │
+│  │  │  │ - Detect Lace       │  │ - submitIdentity() sim hash + store│  │  │  │
+│  │  │  │ - connect('preview')│  │ - uploadDocument() sim doc commit  │  │  │  │
+│  │  │  │ - balances          │  │ - requestVerification() sim approve│  │  │  │
+│  │  │  │ - error handling    │  │ - login() sim session nonce        │  │  │  │
+│  │  │  └─────────────────────┘  │ - verifySession() sim Groth16      │  │  │  │
+│  │  │                           │ - deleteIdentity() sim erasure     │  │  │  │
 │  │  │                           └──────────────────────────────────────┘  │  │  │
 │  │  └──────────────────────────────────────────────────────────────────────┘  │  │
 │  └─────────────────────────────────────────────────────────────────────────────┘  │
@@ -672,7 +672,7 @@ Throughout the entire flow, the right panel shows a live terminal log with:
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                         │
                           ┌─────────────┴─────────────┐
-                          │     (not connected —      │
+                          │     (not connected      │
                           │      running demo mode)   │
                           └─────────────┬─────────────┘
                                         │
@@ -702,7 +702,7 @@ Throughout the entire flow, the right panel shows a live terminal log with:
 │                                                                                     │
 │  ┌─────────────────────────────────────────────────────────────────────────────┐  │
 │  │                         Midnight Proof Server (Docker)                       │  │
-│  │  Port 6300 — Generates Groth16 proofs for Compact circuits                   │  │
+│  │  Port 6300 Generates Groth16 proofs for Compact circuits                   │  │
 │  └─────────────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -710,7 +710,7 @@ Throughout the entire flow, the right panel shows a live terminal log with:
 ### Data Architecture
 
 ```
-Raw User Data (Browser only — NEVER transmitted)
+Raw User Data (Browser only NEVER transmitted)
 ┌─────────────────────────────────────────┐
 │ name: "John Doe"                        │
 │ dob: "1990-01-15"                       │
@@ -809,10 +809,10 @@ npm run build         # TypeScript build → dist/
 ```
 
 The compilation produces:
-- `managed/shadowkey/contract/index.js` — JavaScript contract bindings
-- `managed/shadowkey/keys/*.prover` — Prover keys per circuit
-- `managed/shadowkey/keys/*.verifier` — Verifier keys per circuit
-- `managed/shadowkey/zkir/*.zkir` — ZK intermediate representation
+- `managed/shadowkey/contract/index.js` JavaScript contract bindings
+- `managed/shadowkey/keys/*.prover` Prover keys per circuit
+- `managed/shadowkey/keys/*.verifier` Verifier keys per circuit
+- `managed/shadowkey/zkir/*.zkir` ZK intermediate representation
 
 ### 3. Run the UI (Demo Mode)
 
@@ -823,7 +823,7 @@ npm run dev
 
 Open **[http://localhost:5173](http://localhost:5173)**.
 
-The app runs in **Demo mode** — all ZK proofs are simulated with realistic cryptographic detail:
+The app runs in **Demo mode** all ZK proofs are simulated with realistic cryptographic detail:
 - SHA256 hashes with proper hex formatting
 - Circuit descriptions (k parameter, row counts)
 - Proof generation timing delays (0.8–2.5s per circuit)
@@ -840,7 +840,7 @@ npm run build
 cd shadowkey-ui && npm run build
 ```
 
-Output: `shadowkey-ui/dist/` — deployable static site.
+Output: `shadowkey-ui/dist/` deployable static site.
 
 ### 5. Deploy to Midnight Testnet (Requires Live Setup)
 
@@ -866,7 +866,7 @@ shadowkey/
 ├── shadowkey-contract/                   # 📦 Compact ZK Smart Contract
 │   ├── package.json                      #   compact-runtime@0.14.0 dependency
 │   └── src/
-│       ├── shadowkey.compact             #   📜 202 lines — 9 exported circuits
+│       ├── shadowkey.compact             #   📜 202 lines 9 exported circuits
 │       ├── witnesses.ts                  #   🔐 Browser-side secret management
 │       ├── index.ts                      #   📤 Package exports
 │       └── managed/                      #   ⚙️ Compiled output (auto-generated)
@@ -888,13 +888,13 @@ shadowkey/
 │   ├── scripts/
 │   │   └── copy-contract-keys.js         #   Copies compiled artifacts to public/
 │   └── src/
-│       ├── App.tsx                       #   🏠 Main app — 5-step wizard flow, modals
+│       ├── App.tsx                       #   🏠 Main app 5-step wizard flow, modals
 │       ├── index.css                     #   🎨 Tailwind + dark theme CSS variables
 │       ├── main.tsx                      #   Entry point
 │       │
 │       ├── hooks/
 │       │   ├── useWallet.ts              #   👛 Lace wallet detection + UUID iteration
-│       │   └── useContract.ts            #   📡 Demo contract hook — 281 lines
+│       │   └── useContract.ts            #   📡 Demo contract hook 281 lines
 │       │
 │       ├── components/
 │       │   ├── IdentityForm.tsx          #   📝 5-field animated form with validation
@@ -902,7 +902,7 @@ shadowkey/
 │       │   ├── Dashboard.tsx             #   📊 Post-verification control center
 │       │   ├── TerminalLog.tsx           #   🖥️ Live operations terminal
 │       │   ├── WalletConnect.tsx          #   🔌 Wallet connection UI
-│       │   ├── RegisterCard.tsx           #   (legacy — kept for compatibility)
+│       │   ├── RegisterCard.tsx           #   (legacy kept for compatibility)
 │       │   ├── LoginCard.tsx              #   (legacy)
 │       │   ├── VerifyCard.tsx             #   (legacy)
 │       │   ├── StepFlow.tsx               #   (legacy)
@@ -917,7 +917,7 @@ shadowkey/
 │
 ├── SHADOWKEY_PRD.md                      # 📋 Product Requirements Document
 ├── README.md                             # 📖 You are here
-├── package.json                          # 📦 Root — npm workspaces config
+├── package.json                          # 📦 Root npm workspaces config
 ├── tsconfig.json                         # 📐 TypeScript configuration
 └── eslint.config.js                      # 📏 ESLint flat config
 ```
@@ -980,19 +980,19 @@ shadowkey.compact (202 lines, Compact 0.31.0)
         │
         ▼
   managed/shadowkey/
-  ├── compiler/contract-info.json      — Circuit metadata
-  ├── contract/index.js                — JavaScript runtime bindings
-  ├── contract/index.d.ts              — TypeScript type definitions
-  ├── contract/index.js.map            — Source maps
+  ├── compiler/contract-info.json      Circuit metadata
+  ├── contract/index.js                JavaScript runtime bindings
+  ├── contract/index.d.ts              TypeScript type definitions
+  ├── contract/index.js.map            Source maps
   ├── keys/
-  │   ├── submitIdentity.prover       — Prover key (for proof generation)
-  │   ├── submitIdentity.verifier     — Verifier key (for on-chain verification)
+  │   ├── submitIdentity.prover       Prover key (for proof generation)
+  │   ├── submitIdentity.verifier     Verifier key (for on-chain verification)
   │   ├── login.prover
   │   ├── login.verifier
   │   └── ... (9 circuits × 2 files)
   └── zkir/
-      ├── submitIdentity.zkir         — ZK intermediate representation
-      ├── submitIdentity.bzkir        — Binary ZKIR
+      ├── submitIdentity.zkir         ZK intermediate representation
+      ├── submitIdentity.bzkir        Binary ZKIR
       └── ... (9 circuits × 2 files)
 ```
 
@@ -1007,7 +1007,7 @@ Current status:
 | compact-runtime | 0.14.0 (pinned) | ⚠️ Needs 0.16.0 |
 | midnight-js-contracts | 3.0.0 | ⚠️ Depends on runtime 0.14.0 |
 | midnight-js-types | 3.0.0 | ⚠️ Depends on runtime 0.14.0 |
-| Demo mode | — | ✅ Full UI + simulated proofs |
+| Demo mode | | ✅ Full UI + simulated proofs |
 
 ---
 
@@ -1030,11 +1030,11 @@ Current status:
 - [ ] Session expiry with block-based timeouts
 
 ### Phase 3: Developer Platform
-- [ ] `@shadowkey/auth` npm package — drop-in authentication for any Midnight dApp
-- [ ] React SDK — `<ShadowKeyButton>` component with customizable styling
-- [ ] REST API — For non-blockchain applications to verify sessions
+- [ ] `@shadowkey/auth` npm package drop-in authentication for any Midnight dApp
+- [ ] React SDK `<ShadowKeyButton>` component with customizable styling
+- [ ] REST API For non-blockchain applications to verify sessions
 - [ ] TypeScript type definitions for all contract interactions
-- [ ] CLI tool — `npx shadowkey init` to scaffold integration
+- [ ] CLI tool `npx shadowkey init` to scaffold integration
 
 ### Phase 4: Advanced Features
 - [ ] Kachina Protocol integration (cross-contract privacy)
@@ -1058,10 +1058,10 @@ Current status:
 ### General
 
 **Q: Does ShadowKey store my personal data?**
-A: No. ShadowKey stores only SHA256 hashes of your identity fields. The raw values — your name, address, ID number, and documents — never leave your browser.
+A: No. ShadowKey stores only SHA256 hashes of your identity fields. The raw values your name, address, ID number, and documents never leave your browser.
 
 **Q: Can the contract administrator see my data?**
-A: No. The contract administrator can see the ledger state, which contains only hashes and booleans. Hashes are one-way — they cannot be reversed to recover your data.
+A: No. The contract administrator can see the ledger state, which contains only hashes and booleans. Hashes are one-way they cannot be reversed to recover your data.
 
 **Q: Is this KYC compliant?**
 A: ShadowKey provides **verification** (proof that a user's identity was checked). It does not provide **identification** (knowledge of who the user is). If your use case requires knowing the user's legal name, ShadowKey can be paired with a privacy-preserving oracle that selectively reveals fields.
@@ -1069,7 +1069,7 @@ A: ShadowKey provides **verification** (proof that a user's identity was checked
 ### Technical
 
 **Q: How does the witness secret work?**
-A: The witness secret is a 32-byte random value generated in the browser. It's stored in localStorage and used to derive your public identity ID. The secret is never transmitted — it's only used as a private input to the ZK circuit.
+A: The witness secret is a 32-byte random value generated in the browser. It's stored in localStorage and used to derive your public identity ID. The secret is never transmitted it's only used as a private input to the ZK circuit.
 
 **Q: What happens if I clear my browser data?**
 A: You lose your witness secret. Your on-chain commitments remain, but you can no longer prove ownership of them. Future versions will derive secrets from wallet signatures to make them portable.
@@ -1078,7 +1078,7 @@ A: You lose your witness secret. Your on-chain commitments remain, but you can n
 A: Yes. Your identity ID is deterministically derived from your witness secret. Any dApp integrating ShadowKey can verify your identity without you re-registering.
 
 **Q: What happens when I delete my identity?**
-A: All on-chain data is removed — field commitments, document commitments, verification status, and session records. A tombstone (`deletedIdentities[id] = true`) prevents re-registration.
+A: All on-chain data is removed field commitments, document commitments, verification status, and session records. A tombstone (`deletedIdentities[id] = true`) prevents re-registration.
 
 ### Business
 
@@ -1098,7 +1098,7 @@ A: The oracle can only approve/reject based on the documents they see. They cann
 
 ## 📜 License
 
-**Apache 2.0** — See [LICENSE](LICENSE) for the full text.
+**Apache 2.0** See [LICENSE](LICENSE) for the full text.
 
 ```
 Copyright 2026 ShadowKey Team
@@ -1120,12 +1120,12 @@ limitations under the License.
 
 ## 🙏 Acknowledgments
 
-- **Midnight Network** — For building the first L1 with native ZK smart contracts
-- **Compact Language Team** — For the ZK DSL that makes this possible
-- **MLH** — For hosting the Midnight Hackathon
-- **MeshJS** — For the starter template that bootstrapped the project
-- **shadcn** — For the beautiful UI component library
-- **Framer Motion** — For the animation library
+- **Midnight Network** For building the first L1 with native ZK smart contracts
+- **Compact Language Team** For the ZK DSL that makes this possible
+- **MLH** For hosting the Midnight Hackathon
+- **MeshJS** For the starter template that bootstrapped the project
+- **shadcn** For the beautiful UI component library
+- **Framer Motion** For the animation library
 
 ---
 
@@ -1135,7 +1135,7 @@ limitations under the License.
 |---------|------|
 | GitHub | [github.com/your-org/shadowkey](https://github.com/your-org/shadowkey) |
 | Devpost | [devpost.com/software/shadowkey](https://devpost.com/software/shadowkey) |
-| Midnight Discord | [discord.gg/midnight](https://discord.gg/midnight) — #showcase channel |
+| Midnight Discord | [discord.gg/midnight](https://discord.gg/midnight) #showcase channel |
 
 ---
 
