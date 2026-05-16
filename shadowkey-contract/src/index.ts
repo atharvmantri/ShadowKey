@@ -1,4 +1,4 @@
-export { Contract as ShadowKeyContract } from './managed/shadowkey/contract/index.js';
+export { Contract as ShadowKeyContract, ledger } from './managed/shadowkey/contract/index.js';
 export type { Witnesses, Ledger, ContractReferenceLocations } from './managed/shadowkey/contract/index.js';
 export { getUserSecret } from './witnesses.js';
 

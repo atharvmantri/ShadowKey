@@ -5,13 +5,13 @@ import * as bip39 from '@scure/bip39';
 import { wordlist as english } from '@scure/bip39/wordlists/english.js';
 
 import {
-  shadowkeyCircuits,
-  type shadowkeyPrivateStateId,
-  type shadowkeyProviders,
-  type DeployedshadowkeyContract,
+  ShadowKeyCircuits,
+  type shadowKeyPrivateStateId,
+  type ShadowKeyProviders,
+  type DeployedShadowKeyContract,
 } from './common-types';
 import { type Config, contractConfig } from './config';
-import { shadowkey, type shadowkeyPrivateState } from '@eddalabs/shadowkey-contract';
+import { ShadowKeyContract, ledger as shadowkeyLedger } from '@eddalabs/shadowkey-contract';
 import { type ContractAddress } from '@midnight-ntwrk/compact-runtime';
 import * as ledger from '@midnight-ntwrk/ledger-v7';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
@@ -55,8 +55,8 @@ export function setLogger(_logger: Logger) {
   logger = _logger;
 }
 
-// Pre-compile the shadowkey contract with ZK circuit assets
-const shadowkeyCompiledContract = CompiledContract.make('shadowkey', shadowkey.Contract).pipe(
+// Pre-compile the ShadowKey contract with ZK circuit assets
+const shadowKeyCompiledContract = CompiledContract.make('shadowkey', ShadowKeyContract).pipe(
   CompiledContract.withVacantWitnesses,
   CompiledContract.withCompiledFileAssets(contractConfig.zkConfigPath),
 );
@@ -83,66 +83,103 @@ export const mnemonicToSeed = async (mnemonic: string): Promise<string> => {
   return Buffer.from(seed).subarray(0, 32).toString('hex');
 };
 
-export const getshadowkeyLedgerState = async (
-  providers: shadowkeyProviders,
+export const getShadowKeyLedgerState = async (
+  providers: ShadowKeyProviders,
   contractAddress: ContractAddress,
-): Promise<bigint | null> => {
+): Promise<{ userCount: bigint; registeredCount: bigint; sessionCount: bigint } | null> => {
   assertIsContractAddress(contractAddress);
   logger.info('Checking contract ledger state...');
   const state = await providers.publicDataProvider
     .queryContractState(contractAddress)
-    .then((contractState) => (contractState != null ? shadowkey.ledger(contractState.data).round : null));
-  logger.info(`Ledger state: ${state}`);
+    .then((contractState) => {
+      if (contractState == null) return null;
+      const stateData = shadowkeyLedger(contractState.data);
+      return {
+        userCount: stateData.userCount,
+        registeredCount: BigInt(stateData.registeredUsers.size()),
+        sessionCount: BigInt(stateData.activeSessions.size()),
+      };
+    });
+  logger.info(`Ledger state: ${JSON.stringify(state)}`);
   return state;
 };
 
 export const joinContract = async (
-  providers: shadowkeyProviders,
+  providers: ShadowKeyProviders,
   contractAddress: string,
-): Promise<DeployedshadowkeyContract> => {
-  const shadowkeyContract = await findDeployedContract(providers, {
+): Promise<DeployedShadowKeyContract> => {
+  const shadowKeyContract = await findDeployedContract(providers, {
     contractAddress,
-    compiledContract: shadowkeyCompiledContract,
-    privateStateId: 'shadowkeyPrivateState',
-    initialPrivateState: { privateshadowkey: 0 },
+    compiledContract: shadowKeyCompiledContract,
+    privateStateId: 'shadowKeyPrivateState',
+    initialPrivateState: { privateShadowKey: 0 },
   });
-  logger.info(`Joined contract at address: ${shadowkeyContract.deployTxData.public.contractAddress}`);
-  return shadowkeyContract;
+  logger.info(`Joined contract at address: ${shadowKeyContract.deployTxData.public.contractAddress}`);
+  return shadowKeyContract;
 };
 
 export const deploy = async (
-  providers: shadowkeyProviders,
-  privateState: shadowkeyPrivateState,
-): Promise<DeployedshadowkeyContract> => {
-  logger.info('Deploying shadowkey contract...');
-  const shadowkeyContract = await deployContract(providers, {
-    compiledContract: shadowkeyCompiledContract,
-    privateStateId: 'shadowkeyPrivateState',
+  providers: ShadowKeyProviders,
+  privateState: { privateShadowKey: number },
+  uiContractAddressPath?: string,
+): Promise<DeployedShadowKeyContract> => {
+  logger.info('Deploying ShadowKey contract...');
+  const shadowKeyContract = await deployContract(providers, {
+    compiledContract: shadowKeyCompiledContract,
+    privateStateId: 'shadowKeyPrivateState',
     initialPrivateState: privateState,
   });
-  logger.info(`Deployed contract at address: ${shadowkeyContract.deployTxData.public.contractAddress}`);
-  return shadowkeyContract;
+  const address = shadowKeyContract.deployTxData.public.contractAddress;
+  logger.info(`Deployed contract at address: ${address}`);
+
+  // Save contract address for UI package
+  if (uiContractAddressPath) {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const outputPath = path.resolve(uiContractAddressPath);
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+    fs.writeFileSync(outputPath, JSON.stringify({ address }, null, 2));
+    logger.info(`Contract address saved to ${outputPath}`);
+  }
+
+  return shadowKeyContract;
 };
 
-export const increment = async (shadowkeyContract: DeployedshadowkeyContract): Promise<FinalizedTxData> => {
-  logger.info('Incrementing...');
-  const finalizedTxData = await shadowkeyContract.callTx.increment();  
-
+export const register = async (shadowKeyContract: DeployedShadowKeyContract): Promise<FinalizedTxData> => {
+  logger.info('Registering identity...');
+  const finalizedTxData = await shadowKeyContract.callTx.register();
   return finalizedTxData.public;
 };
 
-export const displayshadowkeyValue = async (
-  providers: shadowkeyProviders,
-  shadowkeyContract: DeployedshadowkeyContract,
-): Promise<{ shadowkeyValue: bigint | null; contractAddress: string }> => {
-  const contractAddress = shadowkeyContract.deployTxData.public.contractAddress;
-  const shadowkeyValue = await getshadowkeyLedgerState(providers, contractAddress);
-  if (shadowkeyValue === null) {
-    logger.info(`There is no shadowkey contract deployed at ${contractAddress}.`);
+export const login = async (shadowKeyContract: DeployedShadowKeyContract): Promise<{ nonce: string; txData: FinalizedTxData }> => {
+  logger.info('Logging in (generating ZK proof)...');
+  const finalizedTxData = await shadowKeyContract.callTx.login();
+  const nonce = toHex(finalizedTxData.private.result);
+  return { nonce, txData: finalizedTxData.public };
+};
+
+export const verifySession = async (
+  shadowKeyContract: DeployedShadowKeyContract,
+  nonce: string,
+): Promise<boolean> => {
+  logger.info('Verifying session...');
+  const nonceBytes = new Uint8Array(Buffer.from(nonce, 'hex'));
+  const result = await shadowKeyContract.callTx.verifySession(nonceBytes);
+  return result.private.result;
+};
+
+export const displayShadowKeyStatus = async (
+  providers: ShadowKeyProviders,
+  shadowKeyContract: DeployedShadowKeyContract,
+): Promise<{ contractAddress: string; state: Awaited<ReturnType<typeof getShadowKeyLedgerState>> }> => {
+  const contractAddress = shadowKeyContract.deployTxData.public.contractAddress;
+  const state = await getShadowKeyLedgerState(providers, contractAddress);
+  if (state === null) {
+    logger.info(`There is no ShadowKey contract deployed at ${contractAddress}.`);
   } else {
-    logger.info(`Current shadowkey value: ${Number(shadowkeyValue)}`);
+    logger.info(`Users registered: ${state.registeredCount}, Active sessions: ${state.sessionCount}`);
   }
-  return { contractAddress, shadowkeyValue };
+  return { contractAddress, state };
 };
 
 /**
@@ -510,11 +547,11 @@ export const buildFreshWallet = async (config: Config): Promise<WalletContext> =
 
 export const configureProviders = async (walletContext: WalletContext, config: Config) => {
   const walletAndMidnightProvider = await createWalletAndMidnightProvider(walletContext);
-  const zkConfigProvider = new NodeZkConfigProvider<shadowkeyCircuits>(contractConfig.zkConfigPath);
+  const zkConfigProvider = new NodeZkConfigProvider<ShadowKeyCircuits>(contractConfig.zkConfigPath);
   return {
     //AES-256-GCM + PBKDF2
     // WalletProvider for encryption uses Encryption Public Key (EPK)
-    privateStateProvider: levelPrivateStateProvider<typeof shadowkeyPrivateStateId>({
+    privateStateProvider: levelPrivateStateProvider<typeof shadowKeyPrivateStateId>({
       privateStateStoreName: contractConfig.privateStateStoreName,
       signingKeyStoreName: 'signing-keys',
       midnightDbName: 'midnight-level-db',

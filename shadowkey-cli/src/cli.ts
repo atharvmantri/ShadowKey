@@ -3,9 +3,10 @@ import { stdin as input, stdout as output } from 'node:process';
 import { createInterface, type Interface } from 'node:readline/promises';
 import { type Logger } from 'pino';
 import { type StartedDockerComposeEnvironment, type DockerComposeEnvironment } from 'testcontainers';
-import { type shadowkeyProviders, type DeployedshadowkeyContract } from './common-types';
-import { type Config, UndeployedConfig } from './config';
+import { type ShadowKeyProviders, type DeployedShadowKeyContract } from './common-types';
+import { type Config, UndeployedConfig, currentDir } from './config';
 import * as api from './api';
+import path from 'node:path';
 
 let logger: Logger;
 
@@ -20,9 +21,9 @@ const GENESIS_MINT_WALLET_SEED = '0000000000000000000000000000000000000000000000
 const BANNER = `
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║              Midnight shadowkey Example                        ║
+║              Midnight ShadowKey Example                       ║
 ║              ─────────────────────                           ║
-║              A privacy-preserving smart contract demo        ║
+║              A zero-knowledge authentication demo            ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 `;
@@ -48,21 +49,23 @@ const contractMenu = (dustBalance: string) => `
 ${DIVIDER}
   Contract Actions${dustBalance ? `                    DUST: ${dustBalance}` : ''}
 ${DIVIDER}
-  [1] Deploy a new shadowkey contract
-  [2] Join an existing shadowkey contract
+  [1] Deploy a new ShadowKey contract
+  [2] Join an existing ShadowKey contract
   [3] Monitor DUST balance
   [4] Exit
 ${'─'.repeat(62)}
 > `;
 
-/** Build the shadowkey actions menu, showing current DUST balance in the header. */
+/** Build the ShadowKey actions menu, showing current DUST balance in the header. */
 const shadowkeyMenu = (dustBalance: string) => `
 ${DIVIDER}
-  shadowkey Actions${dustBalance ? `                     DUST: ${dustBalance}` : ''}
+  ShadowKey Actions${dustBalance ? `                    DUST: ${dustBalance}` : ''}
 ${DIVIDER}
-  [1] Increment shadowkey
-  [2] Display current shadowkey value
-  [3] Exit
+  [1] Register identity (ZK proof)
+  [2] Login / Prove identity (ZK proof)
+  [3] Verify session (public check)
+  [4] Display contract status
+  [5] Exit
 ${'─'.repeat(62)}
 > `;
 
@@ -133,7 +136,7 @@ const getDustLabel = async (wallet: api.WalletContext['wallet']): Promise<string
 };
 
 /** Prompt for a contract address and join an existing deployed contract. */
-const joinContract = async (providers: shadowkeyProviders, rli: Interface): Promise<DeployedshadowkeyContract> => {
+const joinContract = async (providers: ShadowKeyProviders, rli: Interface): Promise<DeployedShadowKeyContract> => {
   const contractAddress = await rli.question('Enter the contract address (hex): ');
   return await api.joinContract(providers, contractAddress);
 };
@@ -155,25 +158,25 @@ const startDustMonitor = async (wallet: api.WalletContext['wallet'], rli: Interf
  * Errors during deploy/join are caught and displayed — the user stays in the menu.
  */
 const deployOrJoin = async (
-  providers: shadowkeyProviders,
+  providers: ShadowKeyProviders,
   walletCtx: api.WalletContext,
   rli: Interface,
-): Promise<DeployedshadowkeyContract | null> => {
+): Promise<DeployedShadowKeyContract | null> => {
   while (true) {
     const dustLabel = await getDustLabel(walletCtx.wallet);
     const choice = await rli.question(contractMenu(dustLabel));
     switch (choice.trim()) {
       case '1':
         try {
-          const contract = await api.withStatus('Deploying shadowkey contract', () =>
-            api.deploy(providers, { privateshadowkey: 0 }),
+          const uiAddressPath = path.resolve(currentDir, '..', '..', 'shadowkey-ui', 'public', 'contract-address.json');
+          const contract = await api.withStatus('Deploying ShadowKey contract', () =>
+            api.deploy(providers, { privateShadowKey: 0 }, uiAddressPath),
           );
           console.log(`  Contract deployed at: ${contract.deployTxData.public.contractAddress}\n`);
           return contract;
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.log(`\n  ✗ Deploy failed: ${msg}`);
-          // Log the full cause chain to help debug WASM/ledger errors
           if (e instanceof Error && e.cause) {
             let cause: unknown = e.cause;
             let depth = 0;
@@ -214,11 +217,11 @@ const deployOrJoin = async (
 
 /**
  * Main interaction loop. Once a contract is deployed/joined, the user
- * can increment the shadowkey or query its current value.
+ * can register, login, verify sessions, or check contract status.
  */
-const mainLoop = async (providers: shadowkeyProviders, walletCtx: api.WalletContext, rli: Interface): Promise<void> => {
-  const shadowkeyContract = await deployOrJoin(providers, walletCtx, rli);
-  if (shadowkeyContract === null) {
+const mainLoop = async (providers: ShadowKeyProviders, walletCtx: api.WalletContext, rli: Interface): Promise<void> => {
+  const shadowKeyContract = await deployOrJoin(providers, walletCtx, rli);
+  if (shadowKeyContract === null) {
     return;
   }
 
@@ -228,16 +231,36 @@ const mainLoop = async (providers: shadowkeyProviders, walletCtx: api.WalletCont
     switch (choice.trim()) {
       case '1':
         try {
-          await api.withStatus('Incrementing shadowkey', () => api.increment(shadowkeyContract));
+          const txData = await api.withStatus('Registering identity (ZK proof)', () => api.register(shadowKeyContract));
+          console.log(`  ✓ Registered! Tx: ${txData.txId}\n`);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
-          console.log(`  ✗ Increment failed: ${msg}\n`);
+          console.log(`  ✗ Registration failed: ${msg}\n`);
         }
         break;
       case '2':
-        await api.displayshadowkeyValue(providers, shadowkeyContract);
+        try {
+          const result = await api.withStatus('Proving identity (ZK proof)', () => api.login(shadowKeyContract));
+          console.log(`  ✓ Proof valid! Session nonce: ${result.nonce.slice(0, 16)}...\n`);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.log(`  ✗ Login failed: ${msg}\n`);
+        }
         break;
       case '3':
+        try {
+          const nonce = await rli.question('Enter session nonce (hex): ');
+          const valid = await api.verifySession(shadowKeyContract, nonce.trim());
+          console.log(valid ? `  ✓ Active session — Access granted\n` : `  ✗ Invalid or expired session\n`);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.log(`  ✗ Verification failed: ${msg}\n`);
+        }
+        break;
+      case '4':
+        await api.displayShadowKeyStatus(providers, shadowKeyContract);
+        break;
+      case '5':
         return;
       default:
         console.log(`  Invalid choice: ${choice}`);
@@ -264,7 +287,7 @@ const mapContainerPort = (env: StartedDockerComposeEnvironment, url: string, con
  *   1. (Optional) Start Docker containers for proof server / node / indexer
  *   2. Build or restore a wallet and wait for it to be funded
  *   3. Configure midnight-js providers (proof server, indexer, wallet, private state)
- *   4. Enter the contract deploy/join and shadowkey interaction loop
+ *   4. Enter the contract deploy/join and ShadowKey interaction loop
  *   5. Clean up: close wallet, readline, and docker environment
  */
 export const run = async (config: Config, _logger: Logger, dockerEnv?: DockerComposeEnvironment): Promise<void> => {

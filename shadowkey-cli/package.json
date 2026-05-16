@@ -25,7 +25,7 @@
     "setup-undeployed": "node --experimental-specifier-resolution=node --loader ts-node/esm src/setup/standalone.ts", 
     "ps-undeployed": "docker compose -f ps-undeployed.yml up",
     "ps-preview": "docker compose -f ps-preview.yml up",               
-    "build": "rm -rf dist && tsc --project tsconfig.build.json",
+    "build": "node -e \"require('fs').rmSync('dist', {recursive:true, force:true})\" && tsc --project tsconfig.build.json",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "private-provider-testing": "vitest run src/test/private-provider.test.ts",
