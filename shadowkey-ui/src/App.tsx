@@ -5,12 +5,23 @@ import { RegisterCard } from './components/RegisterCard';
 import { LoginCard } from './components/LoginCard';
 import { VerifyCard } from './components/VerifyCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Zap } from 'lucide-react';
+import { Shield, Zap, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 function App() {
   const { isInstalled, isConnected, address, balances, connect, disconnect } = useWallet();
-  const { isLoading, error, register, login, verifySession } = useContract(address);
+  const { isLoading, isInitializing, error, contractAddress, isLive, register, login, verifySession } = useContract(address);
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-indigo-400" />
+          <p className="text-slate-400">Loading ShadowKey...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -22,7 +33,9 @@ function App() {
               <Shield className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg tracking-tight">ShadowKey</span>
-            <Badge variant="outline" className="text-xs border-slate-700 text-slate-500 ml-2">Midnight ZK Auth</Badge>
+            <Badge variant="outline" className="text-xs border-slate-700 text-slate-500 ml-2">
+              {isLive ? 'Live' : 'Demo'}
+            </Badge>
           </div>
           <WalletConnect 
             isInstalled={isInstalled} 
@@ -49,6 +62,11 @@ function App() {
             <Zap className="w-4 h-4 text-amber-400" />
             <span>Client-side ZK proof generation • No trusted servers • Fully private</span>
           </div>
+          {contractAddress && (
+            <div className="mt-3 text-xs font-mono text-slate-600">
+              Contract: {contractAddress.slice(0, 16)}...{contractAddress.slice(-8)}
+            </div>
+          )}
         </div>
 
         {/* Tabs */}

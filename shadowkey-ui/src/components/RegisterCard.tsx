@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Shield, Loader2, CheckCircle2 } from 'lucide-react';
+import { Shield, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
+const EXPLORER_BASE = 'https://explorer.preview.midnight.network';
 
 interface RegisterCardProps {
   onRegister: () => Promise<string | undefined>;
@@ -10,12 +12,12 @@ interface RegisterCardProps {
 }
 
 export function RegisterCard({ onRegister, isLoading }: RegisterCardProps) {
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{ success: boolean; message: string; txHash?: string } | null>(null);
 
   const handleRegister = async () => {
     const txHash = await onRegister();
     if (txHash) {
-      setResult({ success: true, message: `Registered! Tx: ${txHash.slice(0, 16)}...` });
+      setResult({ success: true, message: `Registered! Tx: ${txHash.slice(0, 16)}...`, txHash });
     } else {
       setResult({ success: false, message: 'Registration failed. You may already be registered.' });
     }
@@ -47,10 +49,23 @@ export function RegisterCard({ onRegister, isLoading }: RegisterCardProps) {
           {isLoading ? 'Generating ZK Proof...' : 'Generate Secret & Register'}
         </Button>
         {result && (
-          <Badge variant={result.success ? 'default' : 'destructive'} className={result.success ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : ''}>
-            {result.success ? <CheckCircle2 className="w-3 h-3 mr-1" /> : null}
-            {result.message}
-          </Badge>
+          <div className="space-y-2">
+            <Badge variant={result.success ? 'default' : 'destructive'} className={result.success ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : ''}>
+              {result.success ? <CheckCircle2 className="w-3 h-3 mr-1" /> : null}
+              {result.message}
+            </Badge>
+            {result.success && result.txHash && (
+              <a 
+                href={`${EXPLORER_BASE}/tx/${result.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 underline"
+              >
+                <ExternalLink className="w-3 h-3" />
+                View on Explorer
+              </a>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

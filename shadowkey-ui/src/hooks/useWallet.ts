@@ -35,24 +35,39 @@ export function useWallet(): WalletState {
       if (!lace) throw new Error('Lace wallet not installed');
 
       const api = await lace.enable();
-      const networkId = await api.getNetworkId();
 
-      if (networkId !== '1') {
-        throw new Error('Please set Lace to Midnight Testnet');
+      try {
+        const addresses = await api.getShieldedAddresses();
+        setAddress(addresses.shieldedAddress);
+      } catch {
+        const addr = await api.getChangeAddress();
+        setAddress(addr);
       }
 
-      const addr = await api.getChangeAddress();
-      setAddress(addr);
+      try {
+        const shieldedBal = await api.getShieldedBalances();
+        const unshieldedBal = await api.getUnshieldedBalances();
+        const dustBal = await api.getDustBalance();
 
-      const shielded = await api.getShieldedBalance();
-      const unshielded = await api.getUnshieldedBalance();
-      const dust = await api.getDustBalance();
+        const shieldedValue = Object.values(shieldedBal).reduce((sum: bigint, val: bigint) => sum + val, 0n);
+        const unshieldedValue = Object.values(unshieldedBal).reduce((sum: bigint, val: bigint) => sum + val, 0n);
 
-      setBalances({
-        shielded: (shielded / 1e9).toFixed(4),
-        unshielded: (unshielded / 1e9).toFixed(4),
-        dust: (dust / 1e9).toFixed(4),
-      });
+        setBalances({
+          shielded: (Number(shieldedValue) / 1e9).toFixed(4),
+          unshielded: (Number(unshieldedValue) / 1e9).toFixed(4),
+          dust: (Number(dustBal.balance) / 1e9).toFixed(4),
+        });
+      } catch {
+        const shielded = await api.getShieldedBalance();
+        const unshielded = await api.getUnshieldedBalance();
+        const dust = await api.getDustBalance();
+
+        setBalances({
+          shielded: (Number(shielded) / 1e9).toFixed(4),
+          unshielded: (Number(unshielded) / 1e9).toFixed(4),
+          dust: (Number(dust) / 1e9).toFixed(4),
+        });
+      }
 
       setIsConnected(true);
     } catch (err) {

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Key, Loader2, CheckCircle2, Copy } from 'lucide-react';
+import { Key, Loader2, CheckCircle2, Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
+const EXPLORER_BASE = 'https://explorer.preview.midnight.network';
 
 interface LoginCardProps {
   onLogin: () => Promise<{ nonce: string; txHash: string } | undefined>;
@@ -11,12 +13,14 @@ interface LoginCardProps {
 
 export function LoginCard({ onLogin, isLoading }: LoginCardProps) {
   const [nonce, setNonce] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleLogin = async () => {
     const result = await onLogin();
     if (result) {
       setNonce(result.nonce);
+      setTxHash(result.txHash);
     }
   };
 
@@ -67,6 +71,17 @@ export function LoginCard({ onLogin, isLoading }: LoginCardProps) {
                 <Copy className="w-4 h-4" />
               </Button>
             </div>
+            {txHash && (
+              <a 
+                href={`${EXPLORER_BASE}/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 underline"
+              >
+                <ExternalLink className="w-3 h-3" />
+                View on Explorer
+              </a>
+            )}
             <p className="text-xs text-slate-500">Copy this nonce to verify in the next tab.</p>
           </div>
         )}
