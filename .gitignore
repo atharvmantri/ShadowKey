@@ -63,8 +63,8 @@ jspm_packages/
 # Frontend build artifacts (copied from contract source during build)
 frontend-vite-react/public/midnight/
 
+
 # Project-specific (not part of the deliverable)
 educational-material/
 DEPLOYMENT_PROCEDURE.md
 SHADOWKEY_PRD.md
-
