@@ -21,6 +21,7 @@
     "@tanstack/router-devtools": "^1.147.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
     "lucide-react": "^0.517.0",
     "radix-ui": "^1.4.3",
     "react": "^19.1.0",
