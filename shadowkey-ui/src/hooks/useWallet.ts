@@ -4,6 +4,7 @@ interface WalletState {
   isInstalled: boolean;
   isConnected: boolean;
   address: string | null;
+  error: string | null;
   balances: {
     shielded: string;
     unshielded: string;
@@ -13,28 +14,64 @@ interface WalletState {
   disconnect: () => void;
 }
 
+function findLaceProvider(): any {
+  const w = window as any;
+  const midnight = w.midnight;
+  if (!midnight || typeof midnight !== 'object') return null;
+  for (const key of Object.keys(midnight)) {
+    const provider = midnight[key];
+    if (provider && (typeof provider.connect === 'function' || provider.enable || provider.apiVersion)) {
+      return provider;
+    }
+  }
+  return null;
+}
+
 export function useWallet(): WalletState {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [balances, setBalances] = useState({ shielded: '0', unshielded: '0', dust: '0' });
 
   useEffect(() => {
     const checkWallet = () => {
-      const lace = (window as any).midnight?.mnLace;
-      setIsInstalled(!!lace);
+      setIsInstalled(!!findLaceProvider());
     };
     checkWallet();
-    const interval = setInterval(checkWallet, 1000);
+    const interval = setInterval(checkWallet, 500);
     return () => clearInterval(interval);
   }, []);
 
   const connect = useCallback(async () => {
+    setError(null);
     try {
-      const lace = (window as any).midnight?.mnLace;
-      if (!lace) throw new Error('Lace wallet not installed');
+      const lace = findLaceProvider();
+      if (!lace) {
+        setError('Lace wallet not found');
+        return;
+      }
 
-      const api = await lace.enable();
+      if (typeof lace.connect !== 'function') {
+        setError('Wallet provider has no connect method');
+        return;
+      }
+
+      const networks = ['preview', 'preprod', undefined];
+      let api: any = null;
+      for (const net of networks) {
+        try {
+          api = await lace.connect(net);
+          if (api) break;
+        } catch { continue; }
+      }
+      if (!api) {
+        api = await lace.enable?.() ?? await lace.connect();
+      }
+      if (!api) {
+        setError('Could not connect to any network');
+        return;
+      }
 
       try {
         const addresses = await api.getShieldedAddresses();
@@ -58,29 +95,34 @@ export function useWallet(): WalletState {
           dust: (Number(dustBal.balance) / 1e9).toFixed(4),
         });
       } catch {
-        const shielded = await api.getShieldedBalance();
-        const unshielded = await api.getUnshieldedBalance();
-        const dust = await api.getDustBalance();
+        try {
+          const shielded = await api.getShieldedBalance();
+          const unshielded = await api.getUnshieldedBalance();
+          const dust = await api.getDustBalance();
 
-        setBalances({
-          shielded: (Number(shielded) / 1e9).toFixed(4),
-          unshielded: (Number(unshielded) / 1e9).toFixed(4),
-          dust: (Number(dust) / 1e9).toFixed(4),
-        });
+          setBalances({
+            shielded: (Number(shielded) / 1e9).toFixed(4),
+            unshielded: (Number(unshielded) / 1e9).toFixed(4),
+            dust: (Number(dust) / 1e9).toFixed(4),
+          });
+        } catch {
+          // Balances not available — ignore
+        }
       }
 
       setIsConnected(true);
-    } catch (err) {
-      console.error('Wallet connection failed:', err);
-      throw err;
+    } catch (err: any) {
+      setError(err?.message || 'Failed to connect wallet');
+      setIsConnected(false);
     }
   }, []);
 
   const disconnect = useCallback(() => {
     setIsConnected(false);
     setAddress(null);
+    setError(null);
     setBalances({ shielded: '0', unshielded: '0', dust: '0' });
   }, []);
 
-  return { isInstalled, isConnected, address, balances, connect, disconnect };
+  return { isInstalled, isConnected, address, error, balances, connect, disconnect };
 }

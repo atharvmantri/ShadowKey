@@ -22,3 +22,10 @@ if (fs.existsSync(zkirSrc)) {
   fs.cpSync(zkirSrc, zkirDest, { recursive: true });
   console.log('Copied zkir to public/midnight/shadowkey/zkir');
 }
+
+const compactSrc = path.resolve(root, '../shadowkey-contract/src/shadowkey.compact');
+const compactDest = path.resolve(root, 'public/midnight/shadowkey/shadowkey.compact');
+if (fs.existsSync(compactSrc)) {
+  fs.cpSync(compactSrc, compactDest);
+  console.log('Copied shadowkey.compact to public/midnight/shadowkey/');
+}
