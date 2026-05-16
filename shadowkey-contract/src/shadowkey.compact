@@ -1,0 +1,62 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// --- Data Structures ---
+struct SecretKey { bytes: Bytes<32>; }
+struct PublicKey { bytes: Bytes<32>; }
+
+// --- Public Ledger State ---
+// Whitelist of registered users (hash of secret -> true)
+export ledger registeredUsers: Map<Bytes<32>, Boolean>;
+
+// Active bearer-token sessions (nonce -> true)
+export ledger activeSessions: Map<Bytes<32>, Boolean>;
+
+// Public metric: how many users registered
+export ledger userCount: Counter;
+
+// --- Witness: The user's local secret ---
+// The proof server injects this from private state; it never hits the chain
+witness getUserSecret(): SecretKey;
+
+// --- Circuits ---
+
+// Derive a public identity from a secret using domain-bound hashing
+circuit derivePublicKey(sk: SecretKey): PublicKey {
+    return PublicKey {
+        bytes: persistentHash<Vector<2, Bytes<32>>>([
+            pad(32, "shadowkey:user:v1"),
+            sk.bytes
+        ])
+    };
+}
+
+// REGISTER: Store derived pubkey on-chain. Anyone can register in demo mode.
+export circuit register(): [] {
+    const pk = derivePublicKey(getUserSecret());
+    registeredUsers.insert(disclose(pk.bytes), true);
+    userCount.increment(1);
+}
+
+// LOGIN: ZK proof of registered identity. Returns a session nonce.
+// The contract verifies H(secret) is registered WITHOUT revealing secret.
+export circuit login(): Bytes<32> {
+    const pk = derivePublicKey(getUserSecret());
+    const disclosedPk = disclose(pk.bytes);
+    assert(registeredUsers.lookup(disclosedPk) == true, "User not registered.");
+
+    // Deterministic nonce = H(domain || pubkey).
+    const nonce = persistentHash<Vector<2, Bytes<32>>>([
+        pad(32, "shadowkey:session:v1"),
+        pk.bytes
+    ]);
+
+    activeSessions.insert(disclose(nonce), true);
+    return disclose(nonce);
+}
+
+// VERIFY: Public check for 3rd-party dApps. No ZK required.
+export circuit verifySession(nonce: Bytes<32>): Boolean {
+    return activeSessions.lookup(disclose(nonce));
+}

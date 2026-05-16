@@ -1,0 +1,20 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "compact": {
+      "dependsOn": ["^build"],
+      "outputs": ["src/managed/**", "src/gen/**", "gen/**"]
+    },
+    "build": {
+      "dependsOn": ["^build", "compact"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },    
+    "test": {
+      "dependsOn": ["compact", "^build"]
+    },  
+    "lint": {
+      "dependsOn": ["compact", "^build"]
+    }  
+  }
+}

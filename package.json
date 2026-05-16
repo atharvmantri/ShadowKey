@@ -1,0 +1,74 @@
+{
+  "name": "@eddalabs/starter-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shadowkey-cli",
+    "shadowkey-contract",
+    "shadowkey-ui"
+  ],
+  "scripts": {
+    "compact": "turbo run compact",
+    "build": "turbo run build",
+    "build-production": "git lfs pull && cd shadowkey-contract && npm run build && cd ../shadowkey-ui && npm run build",
+    "setup-standalone": "cd shadowkey-cli && npm run setup-undeployed",
+    "dev:frontend": "cd shadowkey-ui && npm run dev",
+    "lint": "turbo run lint"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.9.2",
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/node": "^22.15.29",
+    "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "testcontainers": "^11.0.0",
+    "ts-node": "^10.9.2",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-js": "2.4.0",
+    "@midnight-ntwrk/compact-runtime": "0.14.0",
+    "@midnight-ntwrk/dapp-connector-api": "4.0.0",
+    "@midnight-ntwrk/ledger-v7": "7.0.0",
+    "@midnight-ntwrk/midnight-js-contracts": "3.0.0",
+    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-network-id": "3.0.0",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "3.0.0",
+    "@midnight-ntwrk/midnight-js-types": "3.0.0",
+    "@midnight-ntwrk/midnight-js-utils": "3.0.0",
+    "@midnight-ntwrk/testkit-js": "3.0.0",
+    "@midnight-ntwrk/wallet-sdk-abstractions": "1.0.0",
+    "@midnight-ntwrk/wallet-sdk-address-format": "3.0.0",
+    "@midnight-ntwrk/wallet-sdk-dust-wallet": "1.0.0",
+    "@midnight-ntwrk/wallet-sdk-facade": "1.0.0",
+    "@midnight-ntwrk/wallet-sdk-hd": "3.0.0",
+    "@midnight-ntwrk/wallet-sdk-runtime": "1.0.0",
+    "@midnight-ntwrk/wallet-sdk-shielded": "1.0.0",
+    "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "1.0.0",
+    "@scure/bip39": "^2.0.1",
+    "dotenv": "^17.2.3",
+    "pino": "9.7.0",
+    "pino-pretty": "13.0.0",
+    "rxjs": "^7.8.1",
+    "vite-plugin-node-polyfills": "^0.24.0",
+    "ws": "8.18.2"
+  },
+  "overrides": {
+    "@midnight-ntwrk/compact-runtime": "0.14.0",
+    "@midnight-ntwrk/onchain-runtime-v1": "1.0.0-alpha.5"
+  }
+}

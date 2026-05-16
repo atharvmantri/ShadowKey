@@ -1,0 +1,40 @@
+{
+  "name": "@eddalabs/shadowkey-cli",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {      
+    "test-undeployed": "vitest run shadowkey.test.ts",  
+    "test-preview": "RUN_ENV_TESTS=true TEST_ENV=preview vitest run shadowkey.test.ts",
+    "test-preprod": "RUN_ENV_TESTS=true TEST_ENV=preprod vitest run shadowkey.test.ts",
+    "tui-undeployed": "node --experimental-specifier-resolution=node --loader ts-node/esm src/tui_standalone.ts",     
+    "tui-preview": "node --experimental-specifier-resolution=node --loader ts-node/esm src/tui_preview.ts", 
+    "tui-preprod": "node --experimental-specifier-resolution=node --loader ts-node/esm src/tui_preprod.ts", 
+    "setup-undeployed": "node --experimental-specifier-resolution=node --loader ts-node/esm src/setup/standalone.ts", 
+    "ps-undeployed": "docker compose -f ps-undeployed.yml up",
+    "ps-preview": "docker compose -f ps-preview.yml up",               
+    "build": "rm -rf dist && tsc --project tsconfig.build.json",
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "private-provider-testing": "vitest run src/test/private-provider.test.ts",
+    "public-provider-testing": "vitest run src/test/public-provider.test.ts",
+    "zk-provider-testing": "vitest run src/test/zk-provider.test.ts",
+    "indexer-client-testing": "vitest run src/test/indexer-client.test.ts",
+    "wallet-testing": "vitest run src/test/wallet.test.ts"
+  },
+  "dependencies": {    
+    "@eddalabs/shadowkey-contract": "*"    
+  }
+}
