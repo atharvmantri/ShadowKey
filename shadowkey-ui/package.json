@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run copy-contract-keys && vite build",
+    "build": "node scripts/copy-contract-keys.js && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "copy-contract-keys": "mkdir -p ./public/midnight/shadowkey/keys && mkdir -p ./public/midnight/shadowkey/zkir && cp -r ../shadowkey-contract/src/managed/shadowkey/keys/* ./public/midnight/shadowkey/keys && cp -r ../shadowkey-contract/src/managed/shadowkey/zkir/* ./public/midnight/shadowkey/zkir"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@eddalabs/shadowkey-contract": "*",

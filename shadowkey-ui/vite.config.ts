@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => ({
     ],
   },
   build: {
+    target: 'esnext',
     commonjsOptions: {
       transformMixedEsModules: true,
     },
