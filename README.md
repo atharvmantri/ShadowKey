@@ -1,97 +1,158 @@
-# 🚀 EDDA - Midnight Starter Template
-- A starter template for building on Midnight Network with React frontend and smart contract integration.
-- **[Live Demo → shadowkey.nebula.builders](https://shadowkey.nebula.builders)**
+# ShadowKey — Zero-Knowledge Authentication Layer
 
-## 📦 Prerequisites
+> Prove you are who you say you are — without revealing your identity, wallet address, or transaction history.
 
-- [Node.js](https://nodejs.org/) (v23+) & [npm](https://www.npmjs.com/) (v11+)
-- [Docker](https://docs.docker.com/get-docker/)
-- [Git LFS](https://git-lfs.com/) (for large files)
-- [Compact](https://docs.midnight.network/relnotes/compact-tools) (Midnight developer tools)
-- [Lace](https://chromewebstore.google.com/detail/hgeekaiplokcnmakghbdfbgnlfheichg?utm_source=item-share-cb) (Browser wallet extension)
-- [Faucet](https://faucet.preview.midnight.network/) (Preview Network Faucet)
+**[Live Demo →](https://shadowkey.nebula.builders)** · **[MLH Midnight Hackathon 2026](https://hackathon.midnight.network/)**
 
-## Known Issues
+## What is ShadowKey?
 
-- There’s a not-yet-fixed bug in the arm64 Docker image of the proof server.
-- Workaround: Use Bricktower proof server. **bricktowers/proof-server:6.1.0-alpha.6**
+ShadowKey is a **fully private authentication system** built on the Midnight Network. Instead of exposing credentials, passwords, or wallet signatures, users generate **zero-knowledge proofs** that attest to their identity — and nothing more.
 
-## 🛠️ Setup
+### The Problem
 
-### 1️⃣ Install Git LFS
+Traditional authentication leaks data:
+- **OAuth** shares your profile with every relying party
+- **Wallet signatures** publicly link your address to every login
+- **Password databases** are honeypots for attackers
+
+### The ShadowKey Solution
+
+1. **Register** — Generate a ZK credential tied to your wallet, stored on-chain as a commitment
+2. **Prove** — Generate a proof that you hold a valid credential, without revealing which one
+3. **Verify** — Any service can verify the proof against the contract, with zero data exposure
+
+All proof generation happens **client-side**. No trusted servers. No data collection. No tracking.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        User's Browser                           │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────────────┐ │
+│  │  Lace Wallet  │──▶│  ShadowKey   │──▶│  ZK Proof Generator  │ │
+│  │  (Signing)    │   │    UI        │   │  (client-side WASM)  │ │
+│  └──────────────┘   └──────────────┘   └──────────┬───────────┘ │
+└───────────────────────────────────────────────────┼─────────────┘
+                                                    │
+                                    ┌───────────────▼─────────────┐
+                                    │    Midnight Network         │
+                                    │  ┌───────────────────────┐  │
+                                    │  │  ShadowKey Contract   │  │
+                                    │  │  (Compact / ZK Logic) │  │
+                                    │  └───────────────────────┘  │
+                                    │              ▲              │
+                                    │  ┌───────────┴───────────┐  │
+                                    │  │   Proof Server        │  │
+                                    │  │   (Docker / Groth16)  │  │
+                                    │  └───────────────────────┘  │
+                                    └─────────────────────────────┘
+```
+
+### Data Flow
+
+```
+REGISTER:  Wallet ──sign──▶ UI ──deploy tx──▶ Contract ──store commitment──▶ On-chain registry
+PROVE:     Wallet ──sign──▶ UI ──generate proof──▶ Proof Server ──verify──▶ Contract
+VERIFY:    UI ──query contract──▶ Check proof validity ──return result──▶ User
+```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Smart Contract** | Compact 0.31.0 (Midnight's ZK DSL) |
+| **Proof System** | Groth16 via Midnight Proof Server |
+| **Frontend** | React 19 + TypeScript + Vite + Tailwind + shadcn/ui |
+| **Wallet** | Lace Wallet (Midnight Preview) |
+| **Network** | Midnight Preview (testnet) |
+| **CLI** | Node.js + Midnight SDK |
+| **Animations** | Framer Motion |
+
+## Quick Start
+
+### Prerequisites
+
+- **Node.js** v23+ and **npm** v11+
+- **Docker** (for local proof server)
+- **Lace Wallet** — [Chrome Web Store](https://chromewebstore.google.com/detail/hgeekaiplokcnmakghbdfbgnlfheichg)
+- **Git LFS** (for large contract files)
+
+### 1. Clone & Install
 
 ```bash
-# Install and initialize Git LFS
-sudo dnf install git-lfs  # For Fedora/RHEL
-git lfs install
+git clone https://github.com/your-org/shadowkey.git
+cd shadowkey
+npm install
+npm run build
 ```
 
-### 2️⃣ Install Compact Tools
+### 2. Start Proof Server
 
 ```bash
-# Install the latest Compact tools
-curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+docker run -d -p 6300:6300 midnightnetwork/proof-server:latest
 ```
+
+### 3. Run the UI
+
 ```bash
-# Install the latest compiler
-# Compact compiler version 0.27 should be downloaded manually. Compact tools does not support it currently. 
-compact update +0.27.0
+cd shadowkey-ui
+npm run dev
 ```
 
-### 3️⃣ Install Node.js and docker
-- [Node.js](https://nodejs.org/) & [npm](https://www.npmjs.com/)
-- [Docker](https://docs.docker.com/get-docker/)
+Open [http://localhost:5173](http://localhost:5173). The app runs in **Demo mode** by default with mock proofs.
 
-### 4️⃣ Verify Installation
+### 4. Deploy to Preview Network (Optional)
+
 ```bash
-# Check versions
-node -v  
-npm -v   
-docker -v
-git lfs version
-compact check  # Should show latest version
+# Get tDUST from the Midnight faucet, then:
+SHADOWKEY_DEPLOYER_MNEMONIC="word1 word2 ..." npm run deploy --workspace=@eddalabs/shadowkey-cli
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-├── shadowkey-cli/         # CLI tools
-├── shadowkey-contract/    # Smart contracts
-└── frontend-vite-react/ # React application
+shadowkey/
+├── shadowkey-contract/     # Compact ZK smart contract
+│   └── src/
+│       └── shadowkey.compact
+├── shadowkey-cli/          # Deployment & interaction CLI
+│   └── src/
+│       ├── api.ts          # Midnight SDK integration
+│       ├── deploy.ts       # Deployment script
+│       └── config.ts       # Network configurations
+├── shadowkey-ui/           # React frontend
+│   └── src/
+│       ├── hooks/          # useWallet, useContract
+│       ├── components/     # WalletConnect, RegisterCard, etc.
+│       └── App.tsx         # Main application
+└── SHADOWKEY_PRD.md        # Product Requirements Document
 ```
 
-## 🔗 Setup Instructions
+## Demo Script (2-Minute Walkthrough)
 
-### Install Project Dependencies and compile contracts
-  ```bash
-   # In one terminal (from project root)
-   npm install
-   npm run build
-   ```
+**0:00** — Open the app. Show the hero section: "Authentication Without Exposure."
 
-### Setup Env variables
+**0:15** — Connect Lace Wallet. Explain: "This is our Midnight identity wallet."
 
-1. **Create .env file from template under shadowkey-cli folder**
-   - [`shadowkey-cli/.env_template`](./shadowkey-cli/.env_template)
+**0:30** — **Tab 1: Register.** Enter a username, click Register. Explain: "This creates a ZK credential — a hash of your identity + a random salt. Only the commitment goes on-chain. Your actual identity never leaves your browser."
 
-2. **Create .env file from template under frontend-vite-react folder**
-   - [`frontend-vite-react/.env_template`](./frontend-vite-react/.env_template)
+**1:00** — **Tab 2: Prove.** Enter the same username, click Prove. Explain: "The app generates a Groth16 proof that you know the preimage of a registered commitment. The proof server runs locally — no data is sent to any third party."
 
-### Start Development In Preview Network or
-   ```bash   
-   # In one terminal (from project root)
-   npm run dev:frontend
-   ```
+**1:30** — **Tab 3: Verify.** The session token auto-fills. Click Verify. Explain: "The contract verifies the proof mathematically. No database lookup. No session cookies. Just pure cryptography."
 
-### Start Development In Undeployed Network
-   ```bash   
-   # In one terminal (from project root)
-   npm run setup-standalone
-   
-   # In another terminal (from project root)
-   npm run dev:frontend
-   ```
+**1:50** — Show the code. Point to `shadowkey.compact`: "This is the entire contract — 27 lines of Compact. The ZK logic is declarative and auditable."
+
+## Why Midnight?
+
+Midnight is the only L1 designed for **selective disclosure**. Unlike Ethereum (everything public) or Monero (everything private), Midnight lets you prove exactly what you need — and nothing else. ShadowKey demonstrates this with a real authentication flow that would be impossible on any other chain.
+
+## License
+
+Apache-2.0
+
 ---
 
-<div align="center"><p>Built with ❤️ by <a href="https://eddalabs.io">Edda Labs</a></p></div>
+<div align="center">
+  <p>Built for the <a href="https://hackathon.midnight.network/">MLH Midnight Hackathon 2026</a></p>
+  <p>By the ShadowKey Team</p>
+</div>

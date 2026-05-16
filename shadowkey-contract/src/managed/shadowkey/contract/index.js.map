@@ -1,8 +1,8 @@
 {
   "version": 3,
   "file": "index.js",
-  "sourceRoot": "../../../",
-  "sources": ["shadowkey.compact", "compiler/standard-library.compact"],
+  "sourceRoot": "../../../../",
+  "sources": ["src/shadowkey.compact", "compiler/standard-library.compact"],
   "names": [],
   "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAAA;;;;;;;;;;;;;MAmCA,AAAA,QAIC;;;;;;;;;;;;;;;;;;;;;;OAAA;MAID,AAAA,KAaC;;;;;;;;;;;;;;;;;;;;;;OAAA;MAGD,AAAA,aAEC;;;;;cAF4B,OAAgB;;;;;;;;;;;;;;;;;;yCAAhB,OAAgB;;;;;;;;;+CAAhB,OAAgB;;;OAE5C;;;;;;;;;;;;GACA;EA9DD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAUA;;;;;;;;;;yEAAuD;IAGvD;;;;;;;;;;yEAAsD;IAGtD;;;;;;;;;yEAAiC;;;;;;;GA8ChC;EC9DD,AAAA,kBAAA;oEAAA;;;EDoBA,AAAA,gBAAmC;;0DAAnC,aAAmC;;;;;;;;;;;;;;GAAA;EAKnC,AAAA,kBAOC,CAPuB,IAAa;;;uCAIzB,IAAE;GAGb;EAGD,AAAA,WAIC;UAHS,IAAqC;;UAC3C,KAAe,GAAiB,IAAE;IAAlC;;;;;;;;;;2HAAA,KAAe;;;;;;wEAAA;UACf,KAAS;IAAT;;;;;;;;;;6FAAA,KAAS;;;;wEAAA;;GACZ;EAID,AAAA,QAaC;UAZS,IAAqC;;UACrC,aAAgC,GAAT,IAAE;oDACxB;;;;;;;;;;;;;;+IAAuB,aAAW;;;yHAAnB;;;;UAGhB,OAGJ;4CADE,IAAE;IAGN;;;;;;;;;;2HAA+B,OAAK;;;;;;wEAAtB;WACE,OAAK;GACxB;EAGD,AAAA,gBAEC,4BAF4B,OAAgB;mCAClC;;;;;;;;;;;;;;8HAA+B,OAAK;;;wGAAtB;GACxB;;;;;;;;;;;;;;;;IAnDD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAAuD;;;;;;uCAAvD;;;;;;;;;;;;4GAAuD;;;;;;;;;;;;;;uCAAvD;;;;;;;;;;;;;;;4GAAuD;;;;;;;;;;;;;;uCAAvD;;;;;;;;;;;;;;;;;4GAAuD;;;;;;;;;KAAA;IAGvD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAAsD;;;;;;uCAAtD;;;;;;;;;;;;4GAAsD;;;;;;;;;;;;;;uCAAtD;;;;;;;;;;;;;;;4GAAsD;;;;;;;;;;;;;;uCAAtD;;;;;;;;;;;;;;;;;4GAAsD;;;;;;;;;KAAA;IAGtD;qCAAA;;;;;;;;;;;0GAAiC;KAAA;;;;;;;;;;"
 }
