@@ -1,26 +1,32 @@
-import { shadowkey, type shadowkeyPrivateState } from '@eddalabs/shadowkey-contract';
+import { ShadowKeyContract, type Ledger } from '@eddalabs/shadowkey-contract';
 import type { MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
 import type { DeployedContract, FoundContract } from '@midnight-ntwrk/midnight-js-contracts';
 import type { ImpureCircuitId } from '@midnight-ntwrk/compact-js';
 
-export type shadowkeyCircuits = ImpureCircuitId<shadowkey.Contract<shadowkeyPrivateState>>;
+export type ShadowKeyCircuits = ImpureCircuitId<ShadowKeyContract<any>>;
 
-export const shadowkeyPrivateStateId = 'shadowkeyPrivateState';
+export const shadowKeyPrivateStateId = 'shadowKeyPrivateState';
 
-export type shadowkeyProviders = MidnightProviders<shadowkeyCircuits, typeof shadowkeyPrivateStateId, shadowkeyPrivateState>;
+export type ShadowKeyProviders = MidnightProviders<ShadowKeyCircuits, typeof shadowKeyPrivateStateId, { privateShadowKey: number }>;
 
-export type shadowkeyContract = shadowkey.Contract<shadowkeyPrivateState>;
+export type ShadowKeyContractType = ShadowKeyContract<any>;
 
-export type DeployedshadowkeyContract = DeployedContract<shadowkeyContract> | FoundContract<shadowkeyContract>;
+export type DeployedShadowKeyContract = DeployedContract<ShadowKeyContractType> | FoundContract<ShadowKeyContractType>;
 
 export type UserAction = {
-  increment: string | undefined;  
+  register: string | undefined;
+  login: string | undefined;
+  verify: boolean | undefined;
 };
 
 export type DerivedState = {
-  readonly round: shadowkey.Ledger["round"];
+  readonly userCount: bigint;
+  readonly registeredUsers: number;
+  readonly activeSessions: number;
 };
 
 export const emptyState: DerivedState = {
-  round: 0n,
+  userCount: 0n,
+  registeredUsers: 0,
+  activeSessions: 0,
 };
