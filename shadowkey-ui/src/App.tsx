@@ -7,7 +7,7 @@ import { TerminalLog } from './components/TerminalLog';
 import { IdentityForm } from './components/IdentityForm';
 import { DocumentUpload } from './components/DocumentUpload';
 import { Dashboard } from './components/Dashboard';
-import { WelcomeHero } from './components/WelcomeHero';
+import { LandingPage } from './components/LandingPage';
 import { Shield, Zap, Code2, Info, X, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -130,7 +130,7 @@ function App() {
         </div>
       </nav>
 
-      <div className="relative max-w-7xl mx-auto px-4 py-6 z-10">
+      <div className={`relative z-10 ${currentStep === 'welcome' ? '' : 'max-w-7xl mx-auto px-4 py-6'}`}>
         {/* Step Wizard Indicator */}
         {currentStep !== 'welcome' && (
           <motion.div
@@ -140,8 +140,8 @@ function App() {
           >
             {WIZARD_STEPS.map((s, i) => {
               const stepIdx = WIZARD_STEPS.findIndex(ws => ws.step === currentStep);
-              const isActive = s.step === currentStep;
               const isPast = stepIdx >= i;
+              const isActive = s.step === currentStep;
               return (
                 <button
                   key={s.step}
@@ -166,7 +166,7 @@ function App() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={currentStep === 'welcome' ? '' : 'grid grid-cols-1 lg:grid-cols-3 gap-6'}>
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence mode="wait">
@@ -178,7 +178,7 @@ function App() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
                 >
-                  <WelcomeHero onStart={() => goToStep('form')} />
+                  <LandingPage onStart={() => goToStep('form')} />
                 </motion.div>
               )}
 
