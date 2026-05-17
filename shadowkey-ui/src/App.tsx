@@ -470,7 +470,7 @@ function App() {
                 <code>{contractCode}</code>
               </pre>
               <div className="p-4 border-t border-slate-800 text-xs text-slate-500 space-y-1">
-                <p>Compiled against Compact 0.31.0 — 9 circuits with identity commitments (submitIdentity), document verification (uploadDocument, approveIdentity, rejectIdentity), ZK field proofs (proveField, proveIdentityExists), and privacy-preserving auto-deletion (deleteIdentity).</p>
+                <p>Compiled against Compact 0.31.0 9 circuits with identity commitments (submitIdentity), document verification (uploadDocument, approveIdentity, rejectIdentity), ZK field proofs (proveField, proveIdentityExists), and privacy-preserving auto-deletion (deleteIdentity).</p>
               </div>
             </motion.div>
           </motion.div>
@@ -506,7 +506,7 @@ function App() {
               <div className="space-y-4 text-sm text-slate-300">
                 <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
                   <h3 className="text-indigo-300 font-semibold mb-2">1. Identity Submission</h3>
-                  <p className="text-slate-400">Your 5 identity fields (name, DOB, nationality, address, ID number) are individually hashed with SHA256. Only the field commitments are stored on-chain — raw data never leaves your browser.</p>
+                  <p className="text-slate-400">Your 5 identity fields (name, DOB, nationality, address, ID number) are individually hashed with SHA256. Only the field commitments are stored on-chain raw data never leaves your browser.</p>
                 </div>
                 <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
                   <h3 className="text-purple-300 font-semibold mb-2">2. Document Verification</h3>
@@ -518,7 +518,7 @@ function App() {
                 </div>
                 <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
                   <h3 className="text-amber-300 font-semibold mb-2">4. Zero-Knowledge Login</h3>
-                  <p className="text-slate-400">Prove you're a verified identity without revealing which one. Generate session tokens with ZK proofs. Verify sessions on-chain — all without exposing your personal data.</p>
+                  <p className="text-slate-400">Prove you're a verified identity without revealing which one. Generate session tokens with ZK proofs. Verify sessions on-chain all without exposing your personal data.</p>
                 </div>
               </div>
             </motion.div>

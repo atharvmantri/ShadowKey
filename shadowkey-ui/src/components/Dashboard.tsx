@@ -246,7 +246,7 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
         <div className="flex items-start gap-3">
           <Sparkles className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
           <div className="text-xs text-slate-500 space-y-1">
-            <p><span className="text-indigo-400 font-medium">9 ZK Circuits</span> — submitIdentity, uploadDocument, approveIdentity, rejectIdentity, deleteIdentity, proveIdentityExists, proveField, login, verifySession</p>
+            <p><span className="text-indigo-400 font-medium">9 ZK Circuits</span> submitIdentity, uploadDocument, approveIdentity, rejectIdentity, deleteIdentity, proveIdentityExists, proveField, login, verifySession</p>
             <p className="mt-1">Your data is stored as SHA256 commitments. Raw identity data never touches the ledger. <span className="text-emerald-400">Privacy by design.</span></p>
           </div>
         </div>

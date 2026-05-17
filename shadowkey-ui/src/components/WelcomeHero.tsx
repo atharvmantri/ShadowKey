@@ -395,7 +395,7 @@ export function WelcomeHero({ onStart }: WelcomeHeroProps) {
               </span>
             </Button>
           </MagneticButton>
-          <p className="text-xs text-slate-600 mt-3">No wallet required — runs in demo mode</p>
+          <p className="text-xs text-slate-600 mt-3">No wallet required runs in demo mode</p>
         </motion.div>
       </div>
 

@@ -107,7 +107,7 @@ app.post('/api/auth/verify', async (req, res) => {
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white gap-2"
               >
                 <Zap className="w-4 h-4" />
-                Generate Credentials — One Click
+                Generate Credentials One Click
               </Button>
               <p className="text-[10px] text-slate-600 text-center">No signup required. Credentials are generated locally in your browser.</p>
             </div>
@@ -138,7 +138,7 @@ app.post('/api/auth/verify', async (req, res) => {
               {/* Pre-filled Code */}
               <div className="bg-slate-950 rounded-lg border border-slate-700/50 overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900 border-b border-slate-700/50">
-                  <span className="text-[10px] text-slate-500">TypeScript — {appName || 'My dApp'}</span>
+                  <span className="text-[10px] text-slate-500">TypeScript {appName || 'My dApp'}</span>
                   <button onClick={() => handleCopy('snippet', snippet)} className="text-slate-500 hover:text-white text-[10px] flex items-center gap-1">
                     {copied === 'snippet' ? <><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
                   </button>
@@ -212,7 +212,7 @@ app.post('/api/auth/verify', async (req, res) => {
             {testResult === true && (
               <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
                 className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Valid session — your app can grant access.
+                <CheckCircle2 className="w-3.5 h-3.5" /> Valid session your app can grant access.
               </motion.div>
             )}
             {testResult === false && (

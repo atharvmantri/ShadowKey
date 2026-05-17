@@ -63,7 +63,7 @@ export function VerifyCard({ onVerify, isLoading, isLive }: VerifyCardProps) {
           result.valid ? (
             <Badge className="w-full justify-center py-3 text-sm bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
               <CheckCircle2 className="w-5 h-5 mr-2" />
-              ✓ Session Valid — You Are Authenticated
+              ✓ Session Valid You Are Authenticated
             </Badge>
           ) : (
             <Badge variant="destructive" className="w-full justify-center py-3 text-sm">

@@ -24,20 +24,20 @@ export function createShadowKeyAPI(
       // Phase 4: integrate with @midnight-ntwrk/midnight-js-contracts
       // const tx = await contract.callTx.register();
       // return tx.transactionHash;
-      throw new Error('Not yet implemented — complete Phase 4 integration');
+      throw new Error('Not yet implemented complete Phase 4 integration');
     },
     async login() {
       // Phase 4: integrate with @midnight-ntwrk/midnight-js-contracts
       // const tx = await contract.callTx.login();
       // const nonce = Buffer.from(tx.returnValue).toString('hex');
       // return { nonce, txHash: tx.transactionHash };
-      throw new Error('Not yet implemented — complete Phase 4 integration');
+      throw new Error('Not yet implemented complete Phase 4 integration');
     },
     async verifySession(nonce: string) {
       // Phase 4: integrate with @midnight-ntwrk/midnight-js-contracts
       // const result = await contract.callTx.verifySession(nonce);
       // return result.returnValue;
-      throw new Error('Not yet implemented — complete Phase 4 integration');
+      throw new Error('Not yet implemented complete Phase 4 integration');
     }
   };
 }

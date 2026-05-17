@@ -88,7 +88,7 @@ export function useContract(walletAddress: string | null): ContractState {
           addLog('info', `Contract found at ${address.slice(0, 16)}...`);
           setIsLive(true);
         } else {
-          addLog('info', 'Running in demo mode — no contract deployed');
+          addLog('info', 'Running in demo mode no contract deployed');
         }
       } catch (err: any) {
         addLog('info', 'Running in demo mode');
@@ -129,7 +129,7 @@ export function useContract(walletAddress: string | null): ContractState {
     await delay(600);
     if (!mountedRef.current) return false;
     addLog('success', 'Identity commitment stored on-chain ✓');
-    addLog('data', 'Status: pending_review — waiting for document upload');
+    addLog('data', 'Status: pending_review waiting for document upload');
 
     setVerificationStatus('pending');
     setCurrentStep('documents');
@@ -271,7 +271,7 @@ export function useContract(walletAddress: string | null): ContractState {
     addLog('data', 'ZK proof: identityId is in verifiedIdentities set');
     await delay(800);
     if (!mountedRef.current) return undefined;
-    addLog('success', 'ZK proof verified — identity confirmed ✓');
+    addLog('success', 'ZK proof verified identity confirmed ✓');
 
     addLog('info', 'Minting session nonce...');
     await delay(600);
@@ -310,7 +310,7 @@ export function useContract(walletAddress: string | null): ContractState {
     addLog('data', 'Pairing check: e(π, g₂) == e(public_inputs, vk)');
     await delay(500);
     if (!mountedRef.current) return undefined;
-    addLog('success', 'Groth16 proof accepted — session VALID ✓');
+    addLog('success', 'Groth16 proof accepted session VALID ✓');
     setSessionValid(true);
     setIsLoading(false);
     return true;

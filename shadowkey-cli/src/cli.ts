@@ -147,7 +147,7 @@ const joinContract = async (providers: ShadowKeyProviders, rli: Interface): Prom
  */
 const startDustMonitor = async (wallet: api.WalletContext['wallet'], rli: Interface): Promise<void> => {
   console.log('');
-  // Use readline question to wait for Enter — the monitor will render above this line
+  // Use readline question to wait for Enter the monitor will render above this line
   const stopPromise = rli.question('  Press Enter to return to menu...\n').then(() => {});
   await api.monitorDustBalance(wallet, stopPromise);
   console.log('');
@@ -155,7 +155,7 @@ const startDustMonitor = async (wallet: api.WalletContext['wallet'], rli: Interf
 
 /**
  * Deploy or join flow. Returns the contract handle, or null if the user exits.
- * Errors during deploy/join are caught and displayed — the user stays in the menu.
+ * Errors during deploy/join are caught and displayed the user stays in the menu.
  */
 const deployOrJoin = async (
   providers: ShadowKeyProviders,
@@ -251,7 +251,7 @@ const mainLoop = async (providers: ShadowKeyProviders, walletCtx: api.WalletCont
         try {
           const nonce = await rli.question('Enter session nonce (hex): ');
           const valid = await api.verifySession(shadowKeyContract, nonce.trim());
-          console.log(valid ? `  ✓ Active session — Access granted\n` : `  ✗ Invalid or expired session\n`);
+          console.log(valid ? `  ✓ Active session Access granted\n` : `  ✗ Invalid or expired session\n`);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.log(`  ✗ Verification failed: ${msg}\n`);

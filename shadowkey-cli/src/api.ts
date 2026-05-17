@@ -401,7 +401,7 @@ const registerForDustGeneration = async (
     (coin: any) => coin.meta?.registeredForDustGeneration !== true,
   );
   if (nightUtxos.length === 0) {
-    // All coins already registered — just wait for dust to generate
+    // All coins already registered just wait for dust to generate
     await withStatus('Waiting for dust tokens to generate', () =>
       Rx.firstValueFrom(
         wallet.state().pipe(

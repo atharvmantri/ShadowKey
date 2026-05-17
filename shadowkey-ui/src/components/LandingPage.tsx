@@ -232,18 +232,18 @@ export function LandingPage({ onStart, onDeveloper }: { onStart: () => void; onD
   const features = [
     { icon: Shield, title: 'Zero-Knowledge Proofs', desc: 'Prove you are verified without revealing your name, address, or any identity field. Your data stays hashed and private.', color: 'indigo' },
     { icon: Lock, title: 'No PII Storage', desc: 'Identity fields are SHA256-hashed in your browser before touching the network. We never see your raw data. Neither does anyone else.', color: 'purple' },
-    { icon: EyeOff, title: 'Privacy-Preserving Deletion', desc: 'Erase all your on-chain data with one click. Identity commitments, document records, session tokens — all gone. A tombstone prevents re-registration.', color: 'emerald' },
-    { icon: Layers, title: '9 ZK Circuits', desc: 'submitIdentity, uploadDocument, approveIdentity, rejectIdentity, deleteIdentity, proveIdentityExists, proveField, login, verifySession — full identity pipeline.', color: 'cyan' },
+    { icon: EyeOff, title: 'Privacy-Preserving Deletion', desc: 'Erase all your on-chain data with one click. Identity commitments, document records, session tokens all gone. A tombstone prevents re-registration.', color: 'emerald' },
+    { icon: Layers, title: '9 ZK Circuits', desc: 'submitIdentity, uploadDocument, approveIdentity, rejectIdentity, deleteIdentity, proveIdentityExists, proveField, login, verifySession full identity pipeline.', color: 'cyan' },
     { icon: Cpu, title: 'Groth16 on Midnight', desc: 'Industry-standard pairing-based ZK proofs. Compact 0.31.0 with witness-derived keypairs and domain-bound hashing for security.', color: 'amber' },
     { icon: Wallet, title: 'Lace Wallet Ready', desc: 'Connect Lace Wallet (Midnight Preview) for live testnet transactions. UUID key iteration detects your wallet automatically.', color: 'rose' },
   ];
 
   const steps = [
-    { num: 1, title: 'Fill Identity Form', desc: 'Enter 5 identity fields — Full Name, Date of Birth, Nationality, Residential Address, ID Number. Each field is individually SHA256-hashed with domain separation in your browser.', icon: Sparkles, color: 'indigo' },
+    { num: 1, title: 'Fill Identity Form', desc: 'Enter 5 identity fields Full Name, Date of Birth, Nationality, Residential Address, ID Number. Each field is individually SHA256-hashed with domain separation in your browser.', icon: Sparkles, color: 'indigo' },
     { num: 2, title: 'Upload Documents', desc: 'Drag-and-drop passport, driver\'s license, national ID card, utility bill, or bank statement. Documents are committed to the ledger via SHA256 hashes. Raw files never leave your device.', icon: Zap, color: 'purple' },
     { num: 3, title: 'Verifier Approval', desc: 'A trusted verifier oracle inspects the actual documents (out of band) and calls approveIdentity or rejectIdentity via ZK circuits. Status changes from pending to verified or rejected.', icon: CheckCircle2, color: 'emerald' },
-    { num: 4, title: 'ZK Login & Session', desc: 'Generate a session nonce by proving you are a verified member — without revealing which one. The login circuit mints a deterministic nonce stored in activeSessions.', icon: Lock, color: 'cyan' },
-    { num: 5, title: 'Privacy Erasure', desc: 'Call deleteIdentity to remove every trace of your data from the ledger — field commitments, document records, verification status, and session tokens. A tombstone prevents re-registration.', icon: Trash2, color: 'rose' },
+    { num: 4, title: 'ZK Login & Session', desc: 'Generate a session nonce by proving you are a verified member without revealing which one. The login circuit mints a deterministic nonce stored in activeSessions.', icon: Lock, color: 'cyan' },
+    { num: 5, title: 'Privacy Erasure', desc: 'Call deleteIdentity to remove every trace of your data from the ledger field commitments, document records, verification status, and session tokens. A tombstone prevents re-registration.', icon: Trash2, color: 'rose' },
   ];
 
   return (
@@ -306,7 +306,7 @@ export function LandingPage({ onStart, onDeveloper }: { onStart: () => void; onD
                 </span>
               </Button>
             </MagnetBtn>
-            <p className="text-xs text-slate-600 mt-3">No wallet required — runs in demo mode</p>
+            <p className="text-xs text-slate-600 mt-3">No wallet required runs in demo mode</p>
           </motion.div>
 
           {/* Scroll indicator */}
@@ -407,11 +407,11 @@ export function LandingPage({ onStart, onDeveloper }: { onStart: () => void; onD
           <div className="space-y-4">
             <Section delay={0.1}>
               <ArchBlock title="Browser (React + Lace Wallet)" items={[
-                'IdentityForm — 5-field input with SHA256 hashing',
-                'DocumentUpload — Drag-and-drop file commitment',
-                'Dashboard — Login, verify, delete controls',
-                'TerminalLog — Live cryptographic operations log',
-                'Witness — getIdentitySecret() from localStorage',
+                'IdentityForm 5-field input with SHA256 hashing',
+                'DocumentUpload Drag-and-drop file commitment',
+                'Dashboard Login, verify, delete controls',
+                'TerminalLog Live cryptographic operations log',
+                'Witness getIdentitySecret() from localStorage',
               ]} color="indigo" side="left" />
             </Section>
 
@@ -538,7 +538,7 @@ const contract = await ShadowKeyContract.deploy(
   { address: '0x...' }  // deployed contract address
 );
 
-// 2. Verify a user's session (public query — no ZK needed)
+// 2. Verify a user's session (public query no ZK needed)
 async function checkAccess(sessionNonce: string): Promise<boolean> {
   const isValid = await contract.verifySession(sessionNonce);
   return isValid; // true = verified user
@@ -617,7 +617,7 @@ app.post('/api/verify', async (req, res) => {
                 <Shield className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm text-slate-400">ShadowKey</span>
-              <span className="text-xs text-slate-600">— MLH Midnight Hackathon 2026</span>
+              <span className="text-xs text-slate-600">MLH Midnight Hackathon 2026</span>
             </div>
             <div className="flex items-center gap-4 text-xs text-slate-600">
               <a href="https://compact-by-example.org" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Compact by Example</a>

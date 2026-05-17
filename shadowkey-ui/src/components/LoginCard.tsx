@@ -77,7 +77,7 @@ export function LoginCard({ onLogin, isLoading, isLive }: LoginCardProps) {
           <div className="space-y-3">
             <Badge className="w-full justify-center py-2 text-sm bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
               <CheckCircle2 className="w-4 h-4 mr-1.5" />
-              ZK Proof Verified — Session Active
+              ZK Proof Verified Session Active
             </Badge>
             <div className="space-y-1">
               <label className="text-xs text-slate-500 font-medium">Session Nonce</label>
