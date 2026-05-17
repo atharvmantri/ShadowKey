@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from './hooks/useWallet';
 import { useContract } from './hooks/useContract';
 import type { IdentityFormData, AppStep } from './hooks/useContract';
@@ -7,8 +7,9 @@ import { TerminalLog } from './components/TerminalLog';
 import { IdentityForm } from './components/IdentityForm';
 import { DocumentUpload } from './components/DocumentUpload';
 import { Dashboard } from './components/Dashboard';
+import { DeveloperPanel } from './components/DeveloperPanel';
 import { LandingPage } from './components/LandingPage';
-import { Shield, Zap, Code2, Info, X, ChevronRight } from 'lucide-react';
+import { Shield, Zap, Code2, Info, X, ChevronRight, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,7 +23,7 @@ const WIZARD_STEPS: { step: AppStep; num: number; label: string }[] = [
 ];
 
 function App() {
-  const { isInstalled, isConnected, address, balances, error: walletError, connect, disconnect } = useWallet();
+  const { isInstalled, isConnected, address, balances, error: walletError, connect, connectDemo, disconnect } = useWallet();
   const {
     isLoading, isInitializing, error: contractError, isLive,
     currentStep, log, identityId, verificationStatus, documents,
@@ -32,16 +33,52 @@ function App() {
   } = useContract(address);
   const [showCode, setShowCode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<'terminal' | 'developer'>('terminal');
   const [contractCode, setContractCode] = useState('');
 
   useEffect(() => {
-    if (showCode && !contractCode) {
-      fetch('/midnight/shadowkey/shadowkey.compact')
-        .then(r => r.text())
-        .then(setContractCode)
-        .catch(() => setContractCode('// Contract source not available in dev mode'));
-    }
+    if (!showCode || contractCode) return;
+    const abort = new AbortController();
+    fetch('/midnight/shadowkey/shadowkey.compact', { signal: abort.signal })
+      .then(r => r.text())
+      .then(setContractCode)
+      .catch(() => { if (!abort.signal.aborted) setContractCode('// Contract source not available'); });
+    return () => abort.abort();
   }, [showCode, contractCode]);
+
+  // Hash-based URL routing
+  const navigateToDeveloper = useCallback(() => {
+    goToStep('dashboard');
+    setSidebarTab('developer');
+  }, [goToStep]);
+
+  // Reset sidebar tab when leaving dashboard
+  useEffect(() => {
+    if (currentStep !== 'dashboard') setSidebarTab('terminal');
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (window.location.hash === '#developer') {
+      navigateToDeveloper();
+    }
+    const onHash = () => {
+      if (window.location.hash === '#developer') navigateToDeveloper();
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [navigateToDeveloper]);
+
+  // Error boundary for render crashes
+  const [hasError, setHasError] = useState(false);
+  useEffect(() => {
+    const handler = (e: ErrorEvent) => {
+      if (e.error && e.error.message && e.error.message.includes('Objects are not valid')) {
+        setHasError(true);
+      }
+    };
+    window.addEventListener('error', handler);
+    return () => window.removeEventListener('error', handler);
+  }, []);
 
   if (isInitializing) {
     return (
@@ -62,6 +99,23 @@ function App() {
           <p className="text-slate-400 animate-pulse text-lg font-light tracking-wide">Initializing ShadowKey...</p>
           <p className="text-slate-600 text-sm mt-2">Loading zero-knowledge identity system</p>
         </motion.div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-8">
+        <div className="text-center max-w-md">
+          <div className="w-14 h-14 mb-6 mx-auto rounded-2xl bg-gradient-to-br from-rose-500 to-orange-600 flex items-center justify-center shadow-xl shadow-rose-500/25">
+            <Shield className="w-7 h-7 text-white" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-200 mb-2">Something went wrong</h2>
+          <p className="text-slate-400 text-sm mb-6">A render error occurred. Please refresh the page.</p>
+          <button onClick={() => window.location.reload()} className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-sm font-semibold cursor-pointer">
+            Reload Application
+          </button>
+        </div>
       </div>
     );
   }
@@ -117,6 +171,13 @@ function App() {
             <button onClick={() => setShowCode(true)} className="text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1 text-sm" title="View source">
               <Code2 className="w-4 h-4" /> <span className="hidden sm:inline">Contract</span>
             </button>
+            <button
+              onClick={() => { window.location.hash = '#developer'; }}
+              className="text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-1 text-sm"
+              title="Developer API"
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> <span className="hidden sm:inline">API</span>
+            </button>
             <WalletConnect
               isInstalled={isInstalled}
               isConnected={isConnected}
@@ -124,6 +185,7 @@ function App() {
               balances={balances}
               error={walletError}
               onConnect={connect}
+              onConnectDemo={connectDemo}
               onDisconnect={disconnect}
             />
           </motion.div>
@@ -178,7 +240,7 @@ function App() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
                 >
-                  <LandingPage onStart={() => goToStep('form')} />
+                  <LandingPage onStart={() => goToStep('form')} onDeveloper={navigateToDeveloper} />
                 </motion.div>
               )}
 
@@ -333,9 +395,46 @@ function App() {
             </AnimatePresence>
           </div>
 
-          {/* Right: Terminal + Steps */}
+          {/* Right: Terminal + Developer */}
           <div className="space-y-4">
-            <TerminalLog log={log} />
+            {currentStep === 'dashboard' ? (
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden">
+                <div className="flex border-b border-slate-800">
+                  <button
+                    onClick={() => setSidebarTab('terminal')}
+                    className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      sidebarTab === 'terminal'
+                        ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    Terminal
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab('developer')}
+                    className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      sidebarTab === 'developer'
+                        ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500'
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    <Code2 className="w-3 h-3 inline mr-1" /> Developer
+                  </button>
+                </div>
+                <div className="p-3">
+                  {sidebarTab === 'terminal' ? (
+                    <TerminalLog log={log} />
+                  ) : (
+                    <DeveloperPanel
+                      sessionNonce={sessionNonce}
+                      onVerifySession={verifySession}
+                    />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <TerminalLog log={log} />
+            )}
           </div>
         </div>
       </div>

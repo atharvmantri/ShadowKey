@@ -5,7 +5,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Zap, Code2, Info, ArrowRight, Sparkles, CheckCircle2,
-  Cpu, Lock, EyeOff, Trash2, Wallet, Layers, Github,
+  Cpu, Lock, EyeOff, Trash2, Wallet, Layers, Github, ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -222,7 +222,7 @@ function ArchBlock({ title, items, color, side }: { title: string; items: string
 }
 
 // ─── Main Component ───
-export function LandingPage({ onStart }: { onStart: () => void }) {
+export function LandingPage({ onStart, onDeveloper }: { onStart: () => void; onDeveloper?: () => void }) {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll();
   const heroParallax = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
@@ -474,7 +474,110 @@ export function LandingPage({ onStart }: { onStart: () => void }) {
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
+      {/* ─── FOR DEVELOPERS ─── */}
+      <section className="relative py-20 border-t border-slate-800/50">
+        <div className="max-w-5xl mx-auto px-4">
+          <Section>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                For Developers
+              </h2>
+              <p className="text-slate-500 max-w-2xl mx-auto">
+                Integrate ShadowKey verification into your dApp in under 5 minutes. No complex SDK. No data liability.
+              </p>
+            </div>
+          </Section>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Section delay={0.1}>
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 h-full">
+                <div className="flex items-center gap-2 mb-4">
+                  <Code2 className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-sm font-semibold text-slate-200">1. User gets verified in ShadowKey</h3>
+                </div>
+                <div className="bg-slate-950 rounded-lg p-3 font-mono text-xs leading-relaxed">
+                  <div className="text-slate-500">// User submits identity → uploads docs → approved</div>
+                  <div className="text-emerald-400">const sessionNonce = await shadowkey.login();</div>
+                  <div className="text-slate-500">// Returns: "0x7a3b...c9f2"</div>
+                  <div className="text-slate-600 mt-1">// User passes this nonce to your app</div>
+                </div>
+              </div>
+            </Section>
+
+            <Section delay={0.2}>
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 h-full">
+                <div className="flex items-center gap-2 mb-4">
+                  <Code2 className="w-4 h-4 text-purple-400" />
+                  <h3 className="text-sm font-semibold text-slate-200">2. Your app verifies the nonce</h3>
+                </div>
+                <div className="bg-slate-950 rounded-lg p-3 font-mono text-xs leading-relaxed">
+                  <div className="text-slate-500">// One query to Midnight. No user data exposed.</div>
+                  <div className="text-purple-400">const result = await contract</div>
+                  <div className="text-purple-400">  .verifySession(nonce);</div>
+                  <div className="text-slate-500">// Returns: true | false</div>
+                  <div className="text-emerald-400 mt-1">if (result) grantAccess();</div>
+                </div>
+              </div>
+            </Section>
+          </div>
+
+          <Section delay={0.3}>
+            <div className="mt-6 bg-slate-900/80 border border-slate-800 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Github className="w-4 h-4 text-slate-400" />
+                <h3 className="text-sm font-semibold text-slate-200">Full Integration Example</h3>
+                <span className="text-xs text-slate-600 ml-auto">TypeScript · Midnight SDK</span>
+              </div>
+              <div className="bg-slate-950 rounded-lg p-4 font-mono text-xs leading-relaxed overflow-x-auto">
+                <pre className="text-slate-300">{`import { ShadowKeyContract } from '@shadowkey/contract';
+import { createSandboxWallet } from '@midnight-ntwrk/midnight-js-wallet';
+
+// 1. Connect to the deployed contract
+const contract = await ShadowKeyContract.deploy(
+  createSandboxWallet(mnemonic),
+  { address: '0x...' }  // deployed contract address
+);
+
+// 2. Verify a user's session (public query — no ZK needed)
+async function checkAccess(sessionNonce: string): Promise<boolean> {
+  const isValid = await contract.verifySession(sessionNonce);
+  return isValid; // true = verified user
+}
+
+// 3. Use it in your API route
+app.post('/api/verify', async (req, res) => {
+  const { sessionNonce } = req.body;
+  const allowed = await checkAccess(sessionNonce);
+  res.json({ authorized: allowed });
+});`}</pre>
+              </div>
+            </div>
+          </Section>
+
+          <Section delay={0.4}>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { title: 'No PII Ever', desc: 'You verify sessions, not identities. No KYC data flows through your servers.' },
+                { title: 'One Query', desc: 'A single verifySession() call is all you need. Returns boolean. Zero complexity.' },
+                { title: 'Self-Sovereign', desc: 'Users control their data. They register once, use everywhere. No re-KYC.' },
+              ].map((item) => (
+                <div key={item.title} className="p-4 bg-slate-800/40 border border-slate-700/50 rounded-lg text-center">
+                  <h4 className="text-sm font-semibold text-slate-200 mb-1">{item.title}</h4>
+                  <p className="text-xs text-slate-500">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+            {onDeveloper && (
+              <div className="mt-6 text-center">
+                <Button onClick={onDeveloper} size="lg"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-3 rounded-xl gap-2 shadow-lg shadow-indigo-500/20 cursor-pointer">
+                  <ExternalLink className="w-4 h-4" /> Open Developer API Panel
+                </Button>
+              </div>
+            )}
+          </Section>
+        </div>
+      </section>
       <section className="relative py-28 border-t border-slate-800/50 overflow-hidden">
         {/* Parallax background orbs */}
         <motion.div className="absolute inset-0 pointer-events-none"

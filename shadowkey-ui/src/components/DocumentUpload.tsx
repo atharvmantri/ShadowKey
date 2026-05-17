@@ -32,6 +32,15 @@ export function DocumentUpload({ isLoading, documents, onUpload, onContinue, onB
       setUploadError('Please select a document type first');
       return;
     }
+    if (file.size > 10_000_000) {
+      setUploadError('File too large. Maximum size is 10 MB.');
+      return;
+    }
+    const allowedMime = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
+    if (!allowedMime.includes(file.type) && !file.name.match(/\.(pdf|png|jpg|jpeg|webp)$/i)) {
+      setUploadError('Invalid file type. Accepted: PDF, PNG, JPG, WEBP.');
+      return;
+    }
     setUploadError(null);
     setUploading(true);
 
@@ -44,8 +53,13 @@ export function DocumentUpload({ isLoading, documents, onUpload, onContinue, onB
       verified: false,
     };
 
-    await onUpload(doc);
-    setUploading(false);
+    try {
+      await onUpload(doc);
+    } catch (err: any) {
+      setUploadError(err?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {

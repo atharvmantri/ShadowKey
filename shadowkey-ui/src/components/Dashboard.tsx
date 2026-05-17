@@ -39,8 +39,10 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
   };
 
   const handleLogin = async () => {
-    const nonce = await onLogin();
-    if (nonce) setSessionInput(nonce);
+    try {
+      const nonce = await onLogin();
+      if (nonce) setSessionInput(nonce);
+    } catch { /* error handled by parent */ }
   };
 
   return (

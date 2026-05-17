@@ -38,6 +38,7 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
   };
 
   const handleSubmit = async () => {
+    if (isLoading) return;
     if (!validate()) return;
     await onSubmit(formData);
   };
@@ -85,6 +86,7 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
                   type={field.type}
                   placeholder={field.placeholder}
                   value={formData[field.key]}
+                  disabled={isLoading}
                   onChange={(e) => {
                     setFormData(prev => ({ ...prev, [field.key]: e.target.value }));
                     if (errors[field.key]) setErrors(prev => ({ ...prev, [field.key]: undefined }));

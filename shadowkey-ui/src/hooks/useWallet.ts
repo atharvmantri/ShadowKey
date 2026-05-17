@@ -1,16 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface WalletState {
   isInstalled: boolean;
   isConnected: boolean;
   address: string | null;
   error: string | null;
-  balances: {
-    shielded: string;
-    unshielded: string;
-    dust: string;
-  };
+  balances: { shielded: string; unshielded: string; dust: string };
   connect: () => Promise<void>;
+  connectDemo: () => void;
   disconnect: () => void;
 }
 
@@ -19,9 +16,10 @@ function findLaceProvider(): any {
   const midnight = w.midnight;
   if (!midnight || typeof midnight !== 'object') return null;
   for (const key of Object.keys(midnight)) {
-    const provider = midnight[key];
-    if (provider && (typeof provider.connect === 'function' || provider.enable || provider.apiVersion)) {
-      return provider;
+    const p = midnight[key];
+    if (p && typeof p === 'object') {
+      if (typeof p.connect === 'function') return p;
+      if (typeof p.enable === 'function') return p;
     }
   }
   return null;
@@ -33,31 +31,27 @@ export function useWallet(): WalletState {
   const [address, setAddress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [balances, setBalances] = useState({ shielded: '0', unshielded: '0', dust: '0' });
+  const connectingRef = useRef(false);
 
   useEffect(() => {
-    const checkWallet = () => {
-      setIsInstalled(!!findLaceProvider());
-    };
-    checkWallet();
-    const interval = setInterval(checkWallet, 500);
-    return () => clearInterval(interval);
+    const check = () => setIsInstalled(!!findLaceProvider());
+    check();
+    window.addEventListener('midnight_provider_ready', check);
+    return () => window.removeEventListener('midnight_provider_ready', check);
   }, []);
 
   const connect = useCallback(async () => {
+    if (connectingRef.current) return;
+    connectingRef.current = true;
     setError(null);
+    setAddress(null);
+    setBalances({ shielded: '0', unshielded: '0', dust: '0' });
+    setIsConnected(false);
     try {
       const lace = findLaceProvider();
-      if (!lace) {
-        setError('Lace wallet not found');
-        return;
-      }
+      if (!lace) { setError('Lace wallet not installed'); return; }
 
-      if (typeof lace.connect !== 'function') {
-        setError('Wallet provider has no connect method');
-        return;
-      }
-
-      const networks = ['preview', 'preprod', undefined];
+      const networks = ['preview', 'preprod', 'devnet', undefined] as const;
       let api: any = null;
       for (const net of networks) {
         try {
@@ -65,56 +59,62 @@ export function useWallet(): WalletState {
           if (api) break;
         } catch { continue; }
       }
-      if (!api) {
-        api = await lace.enable?.() ?? await lace.connect();
-      }
-      if (!api) {
-        setError('Could not connect to any network');
-        return;
-      }
+      if (!api) try { api = await lace.enable?.(); } catch { /* skip */ }
+      if (!api) try { api = await lace.connect(); } catch { /* skip */ }
+      if (!api) { setError('Could not connect. Ensure Lace is on Midnight Preview network.'); return; }
 
+      // Extract address
+      let addr: string | null = null;
       try {
-        const addresses = await api.getShieldedAddresses();
-        setAddress(addresses.shieldedAddress);
+        const addrs = await api.getShieldedAddresses?.();
+        addr = addrs?.shieldedAddress || addrs?.[0] || null;
+        if (!addr) throw new Error('no shielded');
       } catch {
-        const addr = await api.getChangeAddress();
-        setAddress(addr);
+        try {
+          const raw = await api.getChangeAddress?.();
+          addr = raw || null;
+        } catch { /* address unavailable */ }
       }
+      if (addr) setAddress(addr);
 
+      // Extract balances
       try {
-        const shieldedBal = await api.getShieldedBalances();
-        const unshieldedBal = await api.getUnshieldedBalances();
-        const dustBal = await api.getDustBalance();
-
-        const shieldedValue = Object.values(shieldedBal).reduce((sum: bigint, val: bigint) => sum + val, 0n);
-        const unshieldedValue = Object.values(unshieldedBal).reduce((sum: bigint, val: bigint) => sum + val, 0n);
-
+        const sb = await api.getShieldedBalances?.();
+        const ub = await api.getUnshieldedBalances?.();
+        const db = await api.getDustBalance?.();
+        const s = sb ? Object.values(sb).reduce((a: bigint, b: bigint) => a + b, 0n) : 0n;
+        const u = ub ? Object.values(ub).reduce((a: bigint, b: bigint) => a + b, 0n) : 0n;
         setBalances({
-          shielded: (Number(shieldedValue) / 1e9).toFixed(4),
-          unshielded: (Number(unshieldedValue) / 1e9).toFixed(4),
-          dust: (Number(dustBal.balance) / 1e9).toFixed(4),
+          shielded: (Number(s) / 1e12).toFixed(2),
+          unshielded: (Number(u) / 1e12).toFixed(2),
+          dust: db ? (Number(db.balance ?? db) / 1e12).toFixed(2) : '0',
         });
       } catch {
         try {
-          const shielded = await api.getShieldedBalance();
-          const unshielded = await api.getUnshieldedBalance();
-          const dust = await api.getDustBalance();
-
+          const s = await api.getShieldedBalance?.();
+          const u = await api.getUnshieldedBalance?.();
+          const d = await api.getDustBalance?.();
           setBalances({
-            shielded: (Number(shielded) / 1e9).toFixed(4),
-            unshielded: (Number(unshielded) / 1e9).toFixed(4),
-            dust: (Number(dust) / 1e9).toFixed(4),
+            shielded: s ? (Number(s) / 1e12).toFixed(2) : '0',
+            unshielded: u ? (Number(u) / 1e12).toFixed(2) : '0',
+            dust: d ? (Number(d.balance ?? d) / 1e12).toFixed(2) : '0',
           });
-        } catch {
-          // Balances not available — ignore
-        }
+        } catch { /* balances unavailable */ }
       }
 
       setIsConnected(true);
     } catch (err: any) {
-      setError(err?.message || 'Failed to connect wallet');
-      setIsConnected(false);
+      setError(err?.message || 'Connection failed');
+    } finally {
+      connectingRef.current = false;
     }
+  }, []);
+
+  const connectDemo = useCallback(() => {
+    setIsConnected(true);
+    setAddress('0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join(''));
+    setBalances({ shielded: '100.00', unshielded: '50.00', dust: '0.01' });
+    setError(null);
   }, []);
 
   const disconnect = useCallback(() => {
@@ -124,5 +124,5 @@ export function useWallet(): WalletState {
     setBalances({ shielded: '0', unshielded: '0', dust: '0' });
   }, []);
 
-  return { isInstalled, isConnected, address, error, balances, connect, disconnect };
+  return { isInstalled, isConnected, address, error, balances, connect, connectDemo, disconnect };
 }
