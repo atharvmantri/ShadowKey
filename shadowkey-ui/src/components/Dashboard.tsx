@@ -2,8 +2,9 @@ import { useState } from 'react';
 import type { DocumentFile } from '@/hooks/useContract';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, CheckCircle2, XCircle, Clock, Trash2, LogIn, Key, Copy, RefreshCw, FileText, User, Calendar, Globe, MapPin, CreditCard, Sparkles } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, Clock, Trash2, LogIn, Key, Copy, FileText, User, Sparkles } from 'lucide-react';
 
 interface DashboardProps {
   identityId: string | null;
@@ -18,12 +19,12 @@ interface DashboardProps {
   onRestart: () => void;
 }
 
-const STATUS_CONFIG = {
-  none: { label: 'Not Submitted', color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/20', icon: Clock },
-  pending: { label: 'Pending Review', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: Clock },
-  verified: { label: 'Verified ✓', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', icon: CheckCircle2 },
-  rejected: { label: 'Rejected ✗', color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', icon: XCircle },
-  deleted: { label: 'Deleted', color: 'text-slate-500', bg: 'bg-slate-500/10', border: 'border-slate-500/20', icon: Trash2 },
+const STATUS_CONFIG: Record<string, { label: string; badge: 'default' | 'success' | 'warning' | 'error' | 'ghost'; icon: typeof Clock }> = {
+  none: { label: 'Not Submitted', badge: 'ghost', icon: Clock },
+  pending: { label: 'Pending Review', badge: 'warning', icon: Clock },
+  verified: { label: 'Verified', badge: 'success', icon: CheckCircle2 },
+  rejected: { label: 'Rejected', badge: 'error', icon: XCircle },
+  deleted: { label: 'Deleted', badge: 'ghost', icon: Trash2 },
 };
 
 export function Dashboard({ identityId, verificationStatus, documents, sessionNonce, sessionValid, isLoading, onLogin, onVerifySession, onDelete, onRestart }: DashboardProps) {
@@ -47,30 +48,25 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
 
   return (
     <div className="space-y-4">
-      {/* Status Card */}
       <motion.div
-        className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden"
+        className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
       >
-        <div className="p-6 pb-4 border-b border-slate-800">
+        <div className="p-6 pb-4 border-b border-white/[0.06]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${config.bg} ${config.border} border`}>
-                <Icon className={`w-5 h-5 ${config.color}`} />
+              <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/20 shadow-[0_0_12px_rgba(99,102,241,0.1)]">
+                <Shield className="w-5 h-5 text-indigo-400" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">Identity Status</h2>
-                <p className={`text-sm ${config.color}`}>{config.label}</p>
+                <h2 className="text-lg font-semibold text-white tracking-[-0.02em]">Identity Status</h2>
+                <Badge variant={config.badge} className="mt-1">{config.label}</Badge>
               </div>
             </div>
             {identityId && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleCopy(identityId)}
-                className="text-slate-400 hover:text-white gap-1.5 text-xs"
-              >
+              <Button variant="ghost" size="sm" onClick={() => handleCopy(identityId)} className="gap-1.5 text-xs">
                 <Copy className="w-3 h-3" />
                 {copied ? 'Copied!' : 'Copy ID'}
               </Button>
@@ -80,7 +76,6 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
 
         {identityId && (
           <div className="p-6 space-y-4">
-            {/* Identity details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { icon: User, label: 'Identity ID', value: `${identityId.slice(0, 18)}...${identityId.slice(-6)}` },
@@ -92,65 +87,52 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
                 return (
                   <motion.div
                     key={item.label}
-                    className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
-                    <div className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-md">
+                    <div className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
                       <ItemIcon className="w-3.5 h-3.5 text-indigo-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500">{item.label}</p>
-                      <p className="text-sm text-slate-200 font-mono text-xs">{item.value}</p>
+                      <p className="text-xs text-[#6b7a9e]">{item.label}</p>
+                      <p className="text-sm text-[#c4b5fd] font-mono text-xs">{item.value}</p>
                     </div>
                   </motion.div>
                 );
               })}
             </div>
 
-            {/* Documents */}
             {documents.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Uploaded Documents</p>
+                <p className="text-[10px] font-medium text-[#4f5b7a] uppercase tracking-[0.12em] mb-2">Uploaded Documents</p>
                 <div className="space-y-1.5">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between px-3 py-2 bg-slate-800/30 border border-slate-700/50 rounded-lg">
+                    <div key={doc.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.01] border border-white/[0.06]">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-3.5 h-3.5 text-purple-400" />
-                        <span className="text-xs text-slate-300">{doc.name}</span>
+                        <FileText className="w-3.5 h-3.5 text-violet-400" />
+                        <span className="text-xs text-[#c4b5fd]">{doc.name}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {doc.verified ? (
-                          <span className="text-xs text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Verified</span>
-                        ) : doc.uploaded ? (
-                          <span className="text-xs text-amber-400 flex items-center gap-1"><Clock className="w-3 h-3" /> Pending</span>
-                        ) : null}
-                      </div>
+                      {doc.verified ? (
+                        <Badge variant="success" className="text-[10px]">Verified</Badge>
+                      ) : doc.uploaded ? (
+                        <Badge variant="warning" className="text-[10px]">Pending</Badge>
+                      ) : null}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Action buttons */}
             <div className="flex flex-wrap gap-2 pt-2">
               {verificationStatus === 'verified' && (
                 <>
-                  <Button
-                    onClick={handleLogin}
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white gap-2"
-                  >
+                  <Button onClick={handleLogin} disabled={isLoading} className="gap-2">
                     <LogIn className="w-4 h-4" />
                     {isLoading ? 'Generating...' : 'Login (ZK Session)'}
                   </Button>
-                  <Button
-                    onClick={onDelete}
-                    disabled={isLoading}
-                    variant="outline"
-                    className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 gap-2"
-                  >
+                  <Button onClick={onDelete} disabled={isLoading} variant="outline" className="border-rose-500/30 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 gap-2">
                     <Trash2 className="w-4 h-4" />
                     Delete Identity
                   </Button>
@@ -161,64 +143,57 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
         )}
       </motion.div>
 
-      {/* Session Verification */}
       {sessionNonce && (
         <motion.div
-          className="bg-slate-900/80 border border-slate-800 rounded-xl p-6"
+          className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.05 }}
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20 shadow-[0_0_12px_rgba(52,211,153,0.1)]">
               <Key className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-white">Session Token</h3>
-              <p className="text-sm text-slate-400">Use this token to verify your session on-chain</p>
+              <h3 className="font-semibold text-white tracking-[-0.02em]">Session Token</h3>
+              <p className="text-sm text-[#6b7a9e]">Verify your session on-chain</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 mb-4">
-            <div className="flex-1 p-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg font-mono text-xs text-slate-300 truncate">
+            <div className="flex-1 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] font-mono text-xs text-[#c4b5fd] truncate">
               {sessionNonce}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleCopy(sessionNonce)}
-              className="border-slate-700 text-slate-400 hover:text-white shrink-0"
-            >
+            <Button variant="outline" size="sm" onClick={() => handleCopy(sessionNonce)} className="shrink-0">
               <Copy className="w-3.5 h-3.5" />
             </Button>
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-medium text-slate-300 block">Verify Session</label>
+            <label className="text-sm font-medium text-[#a5b4fc] block tracking-[-0.01em]">Verify Session</label>
             <div className="flex gap-2">
               <Input
                 value={sessionInput}
                 onChange={(e) => setSessionInput(e.target.value)}
                 placeholder="Paste session token..."
-                className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-600 font-mono text-xs"
+                className="font-mono text-xs"
               />
               <Button
                 onClick={() => onVerifySession(sessionInput)}
                 disabled={isLoading || !sessionInput}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white gap-2 shrink-0"
+                className="gap-2 shrink-0 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 shadow-[0_0_16px_rgba(52,211,153,0.2)] hover:shadow-[0_0_28px_rgba(52,211,153,0.4)]"
               >
                 {isLoading ? 'Verifying...' : 'Verify'}
-                <RefreshCw className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
 
-          {/* Result */}
           <AnimatePresence>
             {sessionValid === true && (
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-sm flex items-center gap-2"
+                className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" /> Session verified successfully! Valid for 100,000 blocks.
               </motion.div>
@@ -227,7 +202,7 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-3 p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-400 text-sm flex items-center gap-2"
+                className="mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-center gap-2"
               >
                 <XCircle className="w-4 h-4" /> Session verification failed. Token may be expired or invalid.
               </motion.div>
@@ -236,17 +211,16 @@ export function Dashboard({ identityId, verificationStatus, documents, sessionNo
         </motion.div>
       )}
 
-      {/* Info panel */}
       <motion.div
-        className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl"
+        className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.1 }}
       >
         <div className="flex items-start gap-3">
           <Sparkles className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
-          <div className="text-xs text-slate-500 space-y-1">
-            <p><span className="text-indigo-400 font-medium">9 ZK Circuits</span> submitIdentity, uploadDocument, approveIdentity, rejectIdentity, deleteIdentity, proveIdentityExists, proveField, login, verifySession</p>
+          <div className="text-xs text-[#6b7a9e] space-y-1">
+            <p><span className="text-indigo-400 font-medium">9 ZK Circuits</span> — submitIdentity, uploadDocument, approveIdentity, rejectIdentity, deleteIdentity, proveIdentityExists, proveField, login, verifySession</p>
             <p className="mt-1">Your data is stored as SHA256 commitments. Raw identity data never touches the ledger. <span className="text-emerald-400">Privacy by design.</span></p>
           </div>
         </div>

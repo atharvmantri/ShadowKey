@@ -9,9 +9,9 @@ import { DocumentUpload } from './components/DocumentUpload';
 import { Dashboard } from './components/Dashboard';
 import { DeveloperPanel } from './components/DeveloperPanel';
 import { LandingPage } from './components/LandingPage';
-import { Shield, Zap, Code2, Info, X, ChevronRight, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Shield, Zap, Code2, Info, X, ChevronRight, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const WIZARD_STEPS: { step: AppStep; num: number; label: string }[] = [
@@ -21,6 +21,13 @@ const WIZARD_STEPS: { step: AppStep; num: number; label: string }[] = [
   { step: 'verifying', num: 4, label: 'Verify' },
   { step: 'dashboard', num: 5, label: 'Dashboard' },
 ];
+
+const slideFade = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+  transition: { duration: 0.2, ease: 'easeOut' },
+};
 
 function App() {
   const { isInstalled, isConnected, address, balances, error: walletError, connect, connectDemo, disconnect } = useWallet();
@@ -46,13 +53,11 @@ function App() {
     return () => abort.abort();
   }, [showCode, contractCode]);
 
-  // Hash-based URL routing
   const navigateToDeveloper = useCallback(() => {
     goToStep('dashboard');
     setSidebarTab('developer');
   }, [goToStep]);
 
-  // Reset sidebar tab when leaving dashboard
   useEffect(() => {
     if (currentStep !== 'dashboard') setSidebarTab('terminal');
   }, [currentStep]);
@@ -68,7 +73,6 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, [navigateToDeveloper]);
 
-  // Error boundary for render crashes
   const [hasError, setHasError] = useState(false);
   useEffect(() => {
     const handler = (e: ErrorEvent) => {
@@ -82,37 +86,42 @@ function App() {
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
+      <div className="min-h-screen flex items-center justify-center bg-[#080816]">
+        <div className="text-center relative">
           <motion.div
-            className="w-14 h-14 mb-6 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/25"
+            className="absolute -inset-8 rounded-full bg-gradient-to-r from-indigo-500/20 via-violet-500/20 to-purple-600/20 blur-3xl"
+            animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="relative w-14 h-14 mb-6 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.3)]"
             animate={{ rotate: [0, 360], scale: [1, 1.1, 1] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
           >
             <Shield className="w-7 h-7 text-white" />
+            <motion.div
+              className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent"
+              animate={{ opacity: [0, 0.4, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </motion.div>
-          <p className="text-slate-400 animate-pulse text-lg font-light tracking-wide">Initializing ShadowKey...</p>
-          <p className="text-slate-600 text-sm mt-2">Loading zero-knowledge identity system</p>
-        </motion.div>
+          <p className="text-[#a5b4fc] animate-pulse text-lg font-light tracking-[0.08em]">Initializing ShadowKey...</p>
+          <p className="text-[#4f5b7a] text-sm mt-2">Loading zero-knowledge identity system</p>
+        </div>
       </div>
     );
   }
 
   if (hasError) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-8">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-[#080816]">
         <div className="text-center max-w-md">
-          <div className="w-14 h-14 mb-6 mx-auto rounded-2xl bg-gradient-to-br from-rose-500 to-orange-600 flex items-center justify-center shadow-xl shadow-rose-500/25">
+          <div className="w-14 h-14 mb-6 mx-auto rounded-2xl bg-gradient-to-br from-rose-500 to-orange-600 flex items-center justify-center shadow-[0_0_20px_rgba(244,63,94,0.3)]">
             <Shield className="w-7 h-7 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-slate-200 mb-2">Something went wrong</h2>
-          <p className="text-slate-400 text-sm mb-6">A render error occurred. Please refresh the page.</p>
-          <button onClick={() => window.location.reload()} className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-sm font-semibold cursor-pointer">
+          <h2 className="text-xl font-bold text-[#e4e4f0] mb-2 tracking-[-0.02em]">Something went wrong</h2>
+          <p className="text-[#6b7a9e] text-sm mb-6">A render error occurred. Please refresh the page.</p>
+          <button onClick={() => window.location.reload()} className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 text-white text-sm font-semibold shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_32px_rgba(99,102,241,0.5)] transition-all cursor-pointer">
             Reload Application
           </button>
         </div>
@@ -121,59 +130,65 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
-      {/* Animated background */}
+    <div className="min-h-screen bg-[#080816] text-[#e4e4f0] relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
         <motion.div
           className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
-          animate={{ x: [0, 50, 0], y: [0, -30, 0] }}
+          animate={{ x: [0, 50, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-1/3 -right-32 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-3xl"
-          animate={{ x: [0, -50, 0], y: [0, 30, 0] }}
+          className="absolute bottom-1/3 -right-32 w-[30rem] h-[30rem] bg-violet-500/10 rounded-full blur-3xl"
+          animate={{ x: [0, -50, 0], y: [0, 30, 0], scale: [1, 1.15, 1] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute top-2/3 left-1/3 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"
+          className="absolute top-2/3 left-1/4 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
         />
+        <motion.div
+          className="absolute top-1/3 right-1/4 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl"
+          animate={{ x: [0, -40, 0], y: [0, 20, 0] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        />
       </div>
 
-      {/* Navbar */}
-      <nav className="relative border-b border-slate-800 bg-slate-900/80 backdrop-blur-xl z-10">
+      <nav className="relative border-b border-white/[0.06] bg-white/[0.03] backdrop-blur-xl z-10">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <motion.div
             className="flex items-center gap-2"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <div className="p-1.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg shadow-indigo-500/25">
+            <div className="p-1.5 rounded-lg bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 shadow-[0_0_16px_rgba(99,102,241,0.3)]">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg tracking-tight">ShadowKey</span>
-            <Badge variant="outline" className={`text-xs ml-2 ${isLive ? 'border-emerald-500/30 text-emerald-400' : 'border-amber-500/30 text-amber-400'}`}>
+            <span className="font-bold text-lg tracking-[-0.03em]">ShadowKey</span>
+            <Badge variant={isLive ? 'success' : 'warning'} className="text-[10px] ml-1">
               {isLive ? 'Live' : 'Demo'}
             </Badge>
-            <Badge variant="outline" className="text-xs border-indigo-500/30 text-indigo-400 hidden sm:inline-flex gap-1">
-              <Zap className="w-3 h-3" /> ZK Identity Protocol
+            <Badge variant="default" className="text-[10px] hidden sm:inline-flex gap-1">
+              <Zap className="w-2.5 h-2.5" /> ZK Identity Protocol
             </Badge>
           </motion.div>
-          <motion.div className="flex items-center gap-3"
+          <motion.div
+            className="flex items-center gap-3"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <button onClick={() => setShowInfo(true)} className="text-slate-500 hover:text-slate-300 transition-colors" title="How it works">
+            <button onClick={() => setShowInfo(true)} className="text-[#4f5b7a] hover:text-[#a5b4fc] transition-colors cursor-pointer" title="How it works">
               <Info className="w-4 h-4" />
             </button>
-            <button onClick={() => setShowCode(true)} className="text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1 text-sm" title="View source">
+            <button onClick={() => setShowCode(true)} className="text-[#4f5b7a] hover:text-[#a5b4fc] transition-colors flex items-center gap-1 text-sm cursor-pointer" title="View source">
               <Code2 className="w-4 h-4" /> <span className="hidden sm:inline">Contract</span>
             </button>
             <button
               onClick={() => { window.location.hash = '#developer'; }}
-              className="text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-1 text-sm"
+              className="text-[#4f5b7a] hover:text-indigo-400 transition-colors flex items-center gap-1 text-sm cursor-pointer"
               title="Developer API"
             >
               <ExternalLink className="w-3.5 h-3.5" /> <span className="hidden sm:inline">API</span>
@@ -193,12 +208,12 @@ function App() {
       </nav>
 
       <div className={`relative z-10 ${currentStep === 'welcome' ? '' : 'max-w-7xl mx-auto px-4 py-6'}`}>
-        {/* Step Wizard Indicator */}
         {currentStep !== 'welcome' && (
           <motion.div
-            className="flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-xl p-1 mb-6 max-w-3xl mx-auto"
+            className="flex items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl p-1 mb-6 max-w-3xl mx-auto shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
           >
             {WIZARD_STEPS.map((s, i) => {
               const stepIdx = WIZARD_STEPS.findIndex(ws => ws.step === currentStep);
@@ -209,16 +224,16 @@ function App() {
                   key={s.step}
                   onClick={() => goToStep(s.step)}
                   disabled={!isPast && s.step !== 'welcome'}
-                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
+                      ? 'bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 text-white shadow-[0_0_16px_rgba(99,102,241,0.2)]'
                       : isPast
-                      ? 'text-slate-400 hover:text-slate-200'
-                      : 'text-slate-700 cursor-not-allowed'
+                      ? 'text-[#6b7a9e] hover:text-[#a5b4fc]'
+                      : 'text-[#3d4a6b] cursor-not-allowed'
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                    isActive ? 'bg-white/20' : isPast ? 'bg-slate-800' : 'bg-slate-900'
+                    isActive ? 'bg-white/20' : isPast ? 'bg-white/[0.04]' : 'bg-white/[0.02]'
                   }`}>{s.num}</span>
                   <span className="hidden sm:inline">{s.label}</span>
                   {i < WIZARD_STEPS.length - 1 && <ChevronRight className="w-3 h-3 hidden sm:block opacity-40" />}
@@ -229,29 +244,15 @@ function App() {
         )}
 
         <div className={currentStep === 'welcome' ? '' : 'grid grid-cols-1 lg:grid-cols-3 gap-6'}>
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence mode="wait">
               {currentStep === 'welcome' && (
-                <motion.div
-                  key="welcome"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                >
+                <motion.div key="welcome" {...slideFade}>
                   <LandingPage onStart={() => goToStep('form')} onDeveloper={navigateToDeveloper} />
                 </motion.div>
               )}
-
               {currentStep === 'form' && (
-                <motion.div
-                  key="form"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                >
+                <motion.div key="form" {...slideFade}>
                   <IdentityForm
                     isLoading={isLoading}
                     onSubmit={async (data: IdentityFormData) => {
@@ -262,15 +263,8 @@ function App() {
                   />
                 </motion.div>
               )}
-
               {currentStep === 'documents' && (
-                <motion.div
-                  key="documents"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                >
+                <motion.div key="documents" {...slideFade}>
                   <DocumentUpload
                     isLoading={isLoading}
                     documents={documents}
@@ -283,28 +277,26 @@ function App() {
                   />
                 </motion.div>
               )}
-
               {currentStep === 'verifying' && (
-                <motion.div
-                  key="verifying"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-6">
+                <motion.div key="verifying" {...slideFade}>
+                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
                     <div className="text-center mb-6">
                       <motion.div
-                        className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/25"
+                        className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 flex items-center justify-center shadow-[0_0_24px_rgba(99,102,241,0.3)]"
                         animate={{ rotate: [0, 360], scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                       >
                         <Zap className="w-8 h-8 text-white" />
+                        <motion.div
+                          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent"
+                          animate={{ opacity: [0, 0.4, 0] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        />
                       </motion.div>
-                      <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent tracking-[-0.02em]">
                         ZK Proof Pipeline
                       </h2>
-                      <p className="text-slate-500 text-sm mt-1">Generating zero-knowledge proofs. Watch the operations log for details.</p>
+                      <p className="text-[#6b7a9e] text-sm mt-1">Generating zero-knowledge proofs. Watch the operations log for details.</p>
                     </div>
                     <div className="space-y-2 max-w-md mx-auto">
                       {[
@@ -316,7 +308,7 @@ function App() {
                       ].map((step, i) => (
                         <motion.div
                           key={step.label}
-                          className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-800/40 border border-slate-700/30"
+                          className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]"
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.3 }}
@@ -333,11 +325,11 @@ function App() {
                             />
                           </motion.div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-slate-200">{step.label}</p>
-                            <p className="text-xs text-slate-500">{step.sub}</p>
+                            <p className="text-sm text-[#c4b5fd]">{step.label}</p>
+                            <p className="text-xs text-[#6b7a9e]">{step.sub}</p>
                           </div>
                           <motion.div
-                            className="w-16 h-1 bg-slate-700 rounded-full overflow-hidden"
+                            className="w-16 h-1 rounded-full bg-white/[0.06] overflow-hidden"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: i * 0.3 + 0.2 }}
@@ -354,15 +346,8 @@ function App() {
                   </div>
                 </motion.div>
               )}
-
               {currentStep === 'dashboard' && (
-                <motion.div
-                  key="dashboard"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                >
+                <motion.div key="dashboard" {...slideFade}>
                   <Dashboard
                     identityId={identityId}
                     verificationStatus={verificationStatus}
@@ -379,14 +364,13 @@ function App() {
               )}
             </AnimatePresence>
 
-            {/* Error */}
             <AnimatePresence>
               {contractError && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-400 text-sm flex items-start gap-2"
+                  className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-2 backdrop-blur-xl"
                 >
                   <X className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{contractError}</span>
@@ -395,27 +379,26 @@ function App() {
             </AnimatePresence>
           </div>
 
-          {/* Right: Terminal + Developer */}
           <div className="space-y-4">
             {currentStep === 'dashboard' ? (
-              <div className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden">
-                <div className="flex border-b border-slate-800">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+                <div className="flex border-b border-white/[0.06]">
                   <button
                     onClick={() => setSidebarTab('terminal')}
-                    className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors ${
+                    className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer ${
                       sidebarTab === 'terminal'
-                        ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500'
-                        : 'text-slate-500 hover:text-slate-300'
+                        ? 'bg-gradient-to-r from-indigo-500/10 to-violet-500/10 text-indigo-400 border-b-2 border-indigo-500'
+                        : 'text-[#6b7a9e] hover:text-[#a5b4fc]'
                     }`}
                   >
                     Terminal
                   </button>
                   <button
                     onClick={() => setSidebarTab('developer')}
-                    className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors ${
+                    className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer ${
                       sidebarTab === 'developer'
-                        ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500'
-                        : 'text-slate-500 hover:text-slate-300'
+                        ? 'bg-gradient-to-r from-indigo-500/10 to-violet-500/10 text-indigo-400 border-b-2 border-indigo-500'
+                        : 'text-[#6b7a9e] hover:text-[#a5b4fc]'
                     }`}
                   >
                     <Code2 className="w-3 h-3 inline mr-1" /> Developer
@@ -425,10 +408,7 @@ function App() {
                   {sidebarTab === 'terminal' ? (
                     <TerminalLog log={log} />
                   ) : (
-                    <DeveloperPanel
-                      sessionNonce={sessionNonce}
-                      onVerifySession={verifySession}
-                    />
+                    <DeveloperPanel sessionNonce={sessionNonce} onVerifySession={verifySession} />
                   )}
                 </div>
               </div>
@@ -450,27 +430,27 @@ function App() {
             onClick={() => setShowCode(false)}
           >
             <motion.div
-              className="bg-slate-900 border border-slate-800 rounded-xl max-w-3xl w-full max-h-[85vh] overflow-auto"
+              className="rounded-2xl border border-white/[0.06] bg-[#0c0c1e] max-w-3xl w-full max-h-[85vh] overflow-auto shadow-[0_32px_64px_rgba(0,0,0,0.5)]"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
-                <h2 className="font-semibold text-white flex items-center gap-2">
+              <div className="flex items-center justify-between p-4 border-b border-white/[0.06] sticky top-0 bg-[#0c0c1e] z-10">
+                <h2 className="font-semibold text-white flex items-center gap-2 tracking-[-0.02em]">
                   <Code2 className="w-4 h-4 text-indigo-400" />
                   shadowkey.compact
-                  <Badge variant="outline" className="text-xs border-indigo-500/30 text-indigo-400 ml-2">9 Circuits</Badge>
+                  <Badge variant="default" className="text-[10px] ml-2">9 Circuits</Badge>
                 </h2>
-                <button onClick={() => setShowCode(false)} className="text-slate-400 hover:text-white p-1">
+                <button onClick={() => setShowCode(false)} className="text-[#6b7a9e] hover:text-white p-1 cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <pre className="p-4 text-sm font-mono text-slate-300 leading-relaxed overflow-x-auto whitespace-pre-wrap">
+              <pre className="p-4 text-sm font-mono text-[#c4b5fd] leading-relaxed overflow-x-auto whitespace-pre-wrap">
                 <code>{contractCode}</code>
               </pre>
-              <div className="p-4 border-t border-slate-800 text-xs text-slate-500 space-y-1">
-                <p>Compiled against Compact 0.31.0 9 circuits with identity commitments (submitIdentity), document verification (uploadDocument, approveIdentity, rejectIdentity), ZK field proofs (proveField, proveIdentityExists), and privacy-preserving auto-deletion (deleteIdentity).</p>
+              <div className="p-4 border-t border-white/[0.06] text-xs text-[#6b7a9e] space-y-1">
+                <p>Compiled against Compact 0.31.0 — 9 circuits with identity commitments (submitIdentity), document verification (uploadDocument, approveIdentity, rejectIdentity), ZK field proofs (proveField, proveIdentityExists), and privacy-preserving auto-deletion (deleteIdentity).</p>
               </div>
             </motion.div>
           </motion.div>
@@ -488,37 +468,37 @@ function App() {
             onClick={() => setShowInfo(false)}
           >
             <motion.div
-              className="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6"
+              className="rounded-2xl border border-white/[0.06] bg-[#0c0c1e] max-w-lg w-full p-6 shadow-[0_32px_64px_rgba(0,0,0,0.5)]"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-semibold text-white flex items-center gap-2">
+                <h2 className="font-semibold text-white flex items-center gap-2 tracking-[-0.02em]">
                   <Info className="w-4 h-4 text-indigo-400" />
                   How ShadowKey Works
                 </h2>
-                <button onClick={() => setShowInfo(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowInfo(false)} className="text-[#6b7a9e] hover:text-white cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <div className="space-y-4 text-sm text-slate-300">
-                <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                  <h3 className="text-indigo-300 font-semibold mb-2">1. Identity Submission</h3>
-                  <p className="text-slate-400">Your 5 identity fields (name, DOB, nationality, address, ID number) are individually hashed with SHA256. Only the field commitments are stored on-chain raw data never leaves your browser.</p>
+              <div className="space-y-4 text-sm text-[#c4b5fd]">
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl">
+                  <h3 className="text-indigo-300 font-semibold mb-2 tracking-[-0.01em]">1. Identity Submission</h3>
+                  <p className="text-[#6b7a9e]">Your 5 identity fields are individually hashed with SHA256. Only the field commitments are stored on-chain — raw data never leaves your browser.</p>
                 </div>
-                <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                  <h3 className="text-purple-300 font-semibold mb-2">2. Document Verification</h3>
-                  <p className="text-slate-400">Upload documents (passport, license, ID card). SHA256 commitments are stored on the ledger. A verifier oracle checks authenticity and approves/rejects via ZK circuits.</p>
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl">
+                  <h3 className="text-violet-300 font-semibold mb-2 tracking-[-0.01em]">2. Document Verification</h3>
+                  <p className="text-[#6b7a9e]">Upload documents (passport, license, ID card). SHA256 commitments are stored on the ledger. A verifier oracle checks authenticity via ZK circuits.</p>
                 </div>
-                <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                  <h3 className="text-emerald-300 font-semibold mb-2">3. Privacy-Preserving Deletion</h3>
-                  <p className="text-slate-400">When you choose to delete, all identity commitments, documents, and status entries are erased from the ledger. A tombstone prevents re-registration while preserving your privacy.</p>
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl">
+                  <h3 className="text-emerald-300 font-semibold mb-2 tracking-[-0.01em]">3. Privacy-Preserving Deletion</h3>
+                  <p className="text-[#6b7a9e]">All identity commitments, documents, and status entries are erased from the ledger. A tombstone prevents re-registration while preserving your privacy.</p>
                 </div>
-                <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                  <h3 className="text-amber-300 font-semibold mb-2">4. Zero-Knowledge Login</h3>
-                  <p className="text-slate-400">Prove you're a verified identity without revealing which one. Generate session tokens with ZK proofs. Verify sessions on-chain all without exposing your personal data.</p>
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl">
+                  <h3 className="text-amber-300 font-semibold mb-2 tracking-[-0.01em]">4. Zero-Knowledge Login</h3>
+                  <p className="text-[#6b7a9e]">Prove you're a verified identity without revealing which one. Generate session tokens with ZK proofs — all without exposing your personal data.</p>
                 </div>
               </div>
             </motion.div>

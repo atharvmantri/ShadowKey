@@ -1,5 +1,6 @@
 import { Shield, Wallet, LogOut, Beaker } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 interface WalletConnectProps {
   isInstalled: boolean;
@@ -16,11 +17,11 @@ export function WalletConnect({ isInstalled, isConnected, address, error, balanc
   if (!isConnected) {
     return (
       <div className="flex items-center gap-2">
-        <Button onClick={onConnect} size="sm" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white gap-1.5 text-xs h-8">
+        <Button onClick={onConnect} size="sm" className="gap-1.5 text-xs h-8">
           <Wallet className="w-3.5 h-3.5" />
           Connect Lace
         </Button>
-        <Button onClick={onConnectDemo} size="sm" variant="outline" className={`border-slate-700 text-slate-400 hover:text-white gap-1.5 text-xs h-8 ${isInstalled ? 'hidden sm:flex' : ''}`}>
+        <Button onClick={onConnectDemo} size="sm" variant="outline" className={`gap-1.5 text-xs h-8 ${isInstalled ? 'hidden sm:flex' : ''}`}>
           <Beaker className="w-3.5 h-3.5" />
           Demo
         </Button>
@@ -30,20 +31,31 @@ export function WalletConnect({ isInstalled, isConnected, address, error, balanc
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <motion.div
+      className="flex items-center gap-3"
+      initial={{ opacity: 0, x: 10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className="flex flex-col items-end">
         <div className="flex items-center gap-2">
-          <Shield className="w-3 h-3 text-emerald-400" />
-          <span className="text-xs font-mono text-slate-200">{address?.slice(0, 8)}...{address?.slice(-6)}</span>
+          <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+          <span className="text-xs font-mono text-[#c4b5fd]">{address?.slice(0, 8)}...{address?.slice(-6)}</span>
         </div>
-        <div className="flex gap-2 text-[10px] text-slate-500">
-          <span>shielded {balances.shielded}</span>
-          <span>unshielded {balances.unshielded}</span>
+        <div className="flex gap-2 text-[10px] text-[#6b7a9e]">
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50" />
+            {balances.shielded} shielded
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500/50" />
+            {balances.unshielded}
+          </span>
         </div>
       </div>
-      <Button variant="ghost" size="sm" onClick={onDisconnect} className="text-slate-500 hover:text-white h-8 w-8 p-0">
+      <Button variant="ghost" size="sm" onClick={onDisconnect} className="text-[#6b7a9e] hover:text-white h-8 w-8 p-0">
         <LogOut className="w-3.5 h-3.5" />
       </Button>
-    </div>
+    </motion.div>
   );
 }

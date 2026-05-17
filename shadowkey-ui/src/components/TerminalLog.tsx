@@ -17,12 +17,12 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const COLORS: Record<string, string> = {
-  info: 'text-blue-400',
-  success: 'text-emerald-400',
-  warn: 'text-amber-400',
-  error: 'text-rose-400',
-  data: 'text-purple-400',
-  zk: 'text-cyan-400',
+  info: 'text-[#60a5fa]',
+  success: 'text-[#34d399]',
+  warn: 'text-[#fbbf24]',
+  error: 'text-[#fb7185]',
+  data: 'text-[#a78bfa]',
+  zk: 'text-[#22d3ee]',
 };
 
 export function TerminalLog({ log }: TerminalLogProps) {
@@ -35,18 +35,22 @@ export function TerminalLog({ log }: TerminalLogProps) {
   }, [log]);
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800 bg-slate-950/50">
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Operations Log</h3>
+    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06] bg-white/[0.02]">
+        <h3 className="text-[10px] font-semibold text-[#6b7a9e] uppercase tracking-[0.15em]">Operations Log</h3>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="text-xs text-slate-600">live</span>
+          <motion.div
+            className="w-1.5 h-1.5 rounded-full bg-emerald-500"
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          <span className="text-[10px] text-[#4f5b7a] tracking-wide">live</span>
         </div>
       </div>
       <div ref={ref} className="p-3 space-y-1 max-h-80 overflow-y-auto font-mono text-xs">
         {log.length === 0 ? (
-          <div className="flex items-center justify-center py-8 text-slate-600">
-            <span>Run a flow to see detailed operations</span>
+          <div className="flex items-center justify-center py-8 text-[#4f5b7a]">
+            <span className="tracking-wide">Run a flow to see detailed operations</span>
           </div>
         ) : (
           <AnimatePresence initial={false}>
@@ -60,9 +64,9 @@ export function TerminalLog({ log }: TerminalLogProps) {
                   transition={{ duration: 0.2 }}
                   className="flex items-start gap-2 py-0.5"
                 >
-                  <span className="text-slate-600 shrink-0 w-14">[{entry.time}]</span>
+                  <span className="text-[#3d4a6b] shrink-0 w-14 tabular-nums">[{entry.time}]</span>
                   <Icon className={`w-3 h-3 mt-0.5 shrink-0 ${COLORS[entry.level]}`} />
-                  <span className={COLORS[entry.level]}>{entry.message}</span>
+                  <span className={`${COLORS[entry.level]} leading-snug`}>{entry.message}</span>
                 </motion.div>
               );
             })}

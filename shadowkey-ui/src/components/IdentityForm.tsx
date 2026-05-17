@@ -44,21 +44,24 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
   };
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="p-6 pb-4 border-b border-slate-800">
+    <motion.div
+      className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="p-6 pb-4 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/20 shadow-[0_0_12px_rgba(99,102,241,0.1)]">
             <Shield className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Identity Submission</h2>
-            <p className="text-sm text-slate-400">Fill in your identity details. Each field will be hashed before committing to the ledger.</p>
+            <h2 className="text-lg font-semibold text-white tracking-[-0.02em]">Identity Submission</h2>
+            <p className="text-sm text-[#6b7a9e]">Each field will be SHA256-hashed before committing to the ledger.</p>
           </div>
         </div>
       </div>
 
-      {/* Fields */}
       <div className="p-6 space-y-5">
         {FIELDS.map((field, i) => {
           const Icon = field.icon;
@@ -72,13 +75,13 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
               className="relative"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: i * 0.06 }}
             >
-              <Label htmlFor={field.key} className="text-sm font-medium text-slate-300 mb-1.5 block">
+              <Label htmlFor={field.key} className="text-sm font-medium text-[#a5b4fc] mb-1.5 block tracking-[-0.01em]">
                 {field.label}
               </Label>
               <div className="relative">
-                <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${hasValue ? 'text-indigo-400' : hasError ? 'text-rose-400' : 'text-slate-600'}`}>
+                <div className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors z-10 ${hasValue ? 'text-indigo-400' : hasError ? 'text-rose-400' : 'text-[#4f5b7a]'}`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <Input
@@ -93,7 +96,7 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
                   }}
                   onFocus={() => setActiveField(i)}
                   onBlur={() => setActiveField(-1)}
-                  className={`pl-10 bg-slate-800/50 border ${hasError ? 'border-rose-500/50 focus-visible:ring-rose-500/30' : isActive ? 'border-indigo-500/50' : 'border-slate-700/50'} text-white placeholder:text-slate-600 h-11 transition-all`}
+                  className={`pl-10 h-11 ${hasError ? 'border-rose-500/50 focus-visible:ring-rose-500/20' : isActive ? 'border-indigo-500/50' : ''}`}
                 />
                 {hasValue && (
                   <motion.div
@@ -101,7 +104,7 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                   >
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
                   </motion.div>
                 )}
               </div>
@@ -115,7 +118,7 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
                 </motion.p>
               )}
               <motion.div
-                className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all`}
+                className="absolute bottom-0 left-0 h-[1px] bg-gradient-to-r from-indigo-500 via-violet-500 to-transparent"
                 initial={{ width: '0%' }}
                 animate={{ width: isActive ? '100%' : '0%' }}
                 transition={{ duration: 0.3 }}
@@ -124,9 +127,8 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
           );
         })}
 
-        {/* Security note */}
         <motion.div
-          className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-lg text-xs text-amber-400/80 flex items-start gap-2"
+          className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-xs text-amber-400/80 flex items-start gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -136,20 +138,19 @@ export function IdentityForm({ isLoading, onSubmit, onBack }: IdentityFormProps)
         </motion.div>
       </div>
 
-      {/* Actions */}
-      <div className="p-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-        <Button variant="ghost" onClick={onBack} disabled={isLoading} className="text-slate-400 hover:text-white gap-2">
+      <div className="p-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+        <Button variant="ghost" onClick={onBack} disabled={isLoading} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> Back
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={isLoading || !formData.name || !formData.dob || !formData.nationality || !formData.address || !formData.idNumber}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white gap-2 px-6"
+          className="gap-2 px-6"
         >
           {isLoading ? 'Submitting...' : 'Submit Identity'}
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
