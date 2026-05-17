@@ -86,13 +86,17 @@ function Section({ children, className, delay = 0 }: { children: React.ReactNode
 // ─── Animated Counter ───
 function AnimatedNumber({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef(null);
+  const [display, setDisplay] = useState('0');
   const inView = useInView(ref, { once: true });
   const val = useMotionValue(0);
-  const rounded = useTransform(val, v => Math.round(v));
+  useEffect(() => {
+    const unsub = val.on('change', (v) => setDisplay(`${Math.round(v)}${suffix}`));
+    return unsub;
+  }, [val, suffix]);
   useEffect(() => {
     if (inView) animate(val, to, { duration: 2, ease: 'easeOut' });
   }, [inView, val, to]);
-  return <span ref={ref}>{useTransform(rounded, v => `${v}${suffix}`) as any}</span>;
+  return <span ref={ref}>{display}</span>;
 }
 
 // ─── Typewriter ───
