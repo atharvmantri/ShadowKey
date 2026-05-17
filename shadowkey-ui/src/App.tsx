@@ -7,7 +7,8 @@ import { TerminalLog } from './components/TerminalLog';
 import { IdentityForm } from './components/IdentityForm';
 import { DocumentUpload } from './components/DocumentUpload';
 import { Dashboard } from './components/Dashboard';
-import { Shield, Zap, Code2, Info, X, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
+import { WelcomeHero } from './components/WelcomeHero';
+import { Shield, Zap, Code2, Info, X, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -175,75 +176,9 @@ function App() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
                 >
-                  {/* Hero */}
-                  <div className="text-center py-6">
-                    <motion.div
-                      className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl shadow-indigo-500/30"
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
-                      <Shield className="w-8 h-8 text-white" />
-                    </motion.div>
-                    <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                      ShadowKey
-                    </h1>
-                    <p className="text-xl text-slate-300 mb-2 font-light">Authentication Without Exposure</p>
-                    <p className="text-slate-500 max-w-xl mx-auto mb-8">
-                      Prove your identity with zero-knowledge proofs on Midnight Network.
-                      No passwords. No data leaks. Just pure cryptography.
-                    </p>
-                    <div className="flex items-center justify-center gap-6 mb-10 text-sm text-slate-500">
-                      <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-amber-400" /> Client-side proofs</span>
-                      <span className="w-1 h-1 rounded-full bg-slate-700" />
-                      <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-indigo-400" /> No trusted setup</span>
-                      <span className="w-1 h-1 rounded-full bg-slate-700" />
-                      <span>Groth16 + SHA256</span>
-                    </div>
-                    <motion.div
-                      className="flex flex-col items-center gap-3"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <Button
-                        onClick={() => goToStep('form')}
-                        size="lg"
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-6 text-lg rounded-xl shadow-xl shadow-indigo-500/20 group"
-                      >
-                        Start Identity Verification
-                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                      <p className="text-xs text-slate-600">No wallet required — runs in demo mode</p>
-                    </motion.div>
-                  </div>
-
-                  {/* Feature Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                    {[
-                      { title: '1. Fill Identity Form', desc: '5 identity fields → SHA256 hashed → committed to ledger', icon: Sparkles, color: 'indigo' },
-                      { title: '2. Upload Documents', desc: 'Drag & drop docs → document commitments stored on-chain', icon: Zap, color: 'purple' },
-                      { title: '3. Auto-Verify & Login', desc: 'ZK proofs verified → session token minted → verify on-chain', icon: Shield, color: 'emerald' },
-                    ].map((feature, i) => {
-                      const Icon = feature.icon;
-                      return (
-                        <motion.div
-                          key={feature.title}
-                          className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + i * 0.1 }}
-                        >
-                          <div className={`w-8 h-8 rounded-lg bg-${feature.color}-500/10 border border-${feature.color}-500/20 flex items-center justify-center mb-2`}>
-                            <Icon className={`w-4 h-4 text-${feature.color}-400`} />
-                          </div>
-                          <h3 className="font-semibold text-sm text-slate-200">{feature.title}</h3>
-                          <p className="text-xs text-slate-500 mt-1">{feature.desc}</p>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
+                  <WelcomeHero onStart={() => goToStep('form')} />
                 </motion.div>
               )}
 
