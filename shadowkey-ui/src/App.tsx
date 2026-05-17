@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { useWallet } from './hooks/useWallet';
 import { useContract } from './hooks/useContract';
 import type { IdentityFormData, AppStep } from './hooks/useContract';
@@ -525,6 +526,7 @@ function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      <Analytics />
     </div>
   );
 }
